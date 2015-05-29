@@ -33,40 +33,26 @@ public class App {
             BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
             StringBuilder sb = new StringBuilder();
+            String line;
 
-            while (true) {
-                String line = reader.readLine();
-                if (line == null)
-                    break;
-                if (line.length() > 0) {
+            while ((line = reader.readLine()) != null) {
                     sb.append(line);
-                }
             }
 
             String resultJSON = sb.toString();
 
-            // Create a JaxBContext
             JAXBContext jc = JAXBContext.newInstance(resultJson.class);
 
-            // Create the Unmarshaller Object using the JaxB Context
             Unmarshaller unmarshaller = jc.createUnmarshaller();
 
-            // Set the Unmarshaller media type to JSON or XML
-            unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE,
-                    "application/json");
+            unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
 
-            // Set it to true if you need to include the JSON root element in the
-            // JSON input
-            unmarshaller
-                    .setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
+            unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
 
-            // Create the StreamSource by creating StringReader using the JSON input
             StreamSource json = new StreamSource(new StringReader(resultJSON));
 
-            // Getting the employee pojo again from the json
             resultJson rj = unmarshaller.unmarshal(json, resultJson.class).getValue();
 
-            // Print the employee data to console
             System.out.println(rj.getNext_cursor());
             for (User user : rj.getUsers())
                 System.out.println(user.getLocation());
