@@ -24,7 +24,7 @@ public class App {
 
             OAuthConsumer consumer = new CommonsHttpOAuthConsumer(oauthProperties.getProperty("consumerKey"), oauthProperties.getProperty("consumerSecret"));
             consumer.setTokenWithSecret(oauthProperties.getProperty("accessToken"), oauthProperties.getProperty("accessTokenSecret"));
-            HttpGet request = new HttpGet("https://api.twitter.com/1.1/followers/ids.json?screen_name=BlizzardCSEU_EN");
+            HttpGet request = new HttpGet("https://api.twitter.com/1.1/followers/list.json?screen_name=BlizzardCSEU_EN");
             consumer.sign(request);
 
             HttpClient client = HttpClientBuilder.create().build();
