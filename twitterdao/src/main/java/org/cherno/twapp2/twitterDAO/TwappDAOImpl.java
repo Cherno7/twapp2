@@ -10,7 +10,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
@@ -51,11 +50,12 @@ public class TwappDAOImpl implements TwappDAO{
                 response = client.execute(request);
 
                 int responseStatus = response.getStatusLine().getStatusCode();
-                twappData.setResponseStatus(responseStatus);
+                twappData.setFollowersResponseStatus(responseStatus);
                 //not safe
-                twappData.setRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
+                twappData.setFollowersRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
 
-                if (responseStatus != 200) return twappData;
+                if (responseStatus == 401) return twappData;
+                if (responseStatus == 429) break;
 
                 JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
                 Unmarshaller unmarshaller = jc.createUnmarshaller();
@@ -81,11 +81,12 @@ public class TwappDAOImpl implements TwappDAO{
                 response = client.execute(request);
 
                 int responseStatus = response.getStatusLine().getStatusCode();
-                twappData.setResponseStatus(responseStatus);
+                twappData.setFriendsResponseStatus(responseStatus);
                 //not safe
-                twappData.setRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
+                twappData.setFriendsRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
 
-                if (responseStatus != 200) return twappData;
+                if (responseStatus == 401) return twappData;
+                if (responseStatus == 429) break;
 
                 JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
                 Unmarshaller unmarshaller = jc.createUnmarshaller();
@@ -117,12 +118,14 @@ public class TwappDAOImpl implements TwappDAO{
 
         TwappData twappData = null;
         try {
-            twappData = twappDAO.getTwitterData("BlizzardCSEU_EN");
+            twappData = twappDAO.getTwitterData("medvedevrussia");
         } catch (TwitterDAOExeption twitterDAOExeption) {
             twitterDAOExeption.printStackTrace();
         }
 
-        System.out.println(twappData.getResponseStatus());
-        System.out.println(twappData.getRemainingLimit());
+        System.out.println(twappData.getFollowersResponseStatus());
+        System.out.println(twappData.getFriendsResponseStatus());
+        System.out.println(twappData.getFollowersRemainingLimit());
+        System.out.println(twappData.getFriendsRemainingLimit());
     }
 }

@@ -6,8 +6,12 @@ package org.cherno.twapp2.twitterDAO;
 public class TwappData {
     private Iterable <String> followersLocations;
     private Iterable <String> friendsLocations;
-    private int responseStatus;
-    private int remainingLimit;
+    private int followersResponseStatus;
+    private int friendsResponseStatus;
+
+    private int followersRemainingLimit;
+    private int friendsRemainingLimit;
+
 
     public Iterable<String> getFollowersLocations() {
         return followersLocations;
@@ -25,19 +29,35 @@ public class TwappData {
         this.friendsLocations = friendsLocations;
     }
 
-    public int getResponseStatus() {
-        return responseStatus;
+    public int getFollowersResponseStatus() {
+        return followersResponseStatus;
     }
 
-    public void setResponseStatus(int responseStatus) {
-        this.responseStatus = responseStatus;
+    public void setFollowersResponseStatus(int followersResponseStatus) {
+        this.followersResponseStatus = followersResponseStatus;
     }
 
-    public int getRemainingLimit() {
-        return remainingLimit;
+    public int getFollowersRemainingLimit() {
+        return followersRemainingLimit;
     }
 
-    public void setRemainingLimit(int remainingLimit) {
-        this.remainingLimit = remainingLimit;
+    public void setFollowersRemainingLimit(int followersRemainingLimit) {
+        this.followersRemainingLimit = followersRemainingLimit;
+    }
+
+    public int getFriendsRemainingLimit() {
+        return friendsRemainingLimit;
+    }
+
+    public void setFriendsRemainingLimit(int friendsRemainingLimit) {
+        this.friendsRemainingLimit = friendsRemainingLimit;
+    }
+
+    public int getFriendsResponseStatus() {
+        return friendsResponseStatus;
+    }
+
+    public void setFriendsResponseStatus(int friendsResponseStatus) {
+        this.friendsResponseStatus = friendsResponseStatus;
     }
 }
