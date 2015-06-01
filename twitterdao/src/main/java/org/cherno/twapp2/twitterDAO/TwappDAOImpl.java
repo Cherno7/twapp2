@@ -28,7 +28,7 @@ public class TwappDAOImpl implements TwappDAO{
     private static final String friendsListURL = "https://api.twitter.com/1.1/friends/list.json?count=200&skip_status=true&include_user_entities=false&screen_name=";
 
 
-    public TwappData getTwitterData(String userName) {
+    public TwappData getTwitterData(String userName) throws TwitterDAOExeption {
         Properties oAuthProperties = new Properties();
         TwappData twappData = new TwappData();
         HttpClient client = HttpClientBuilder.create().build();
@@ -104,7 +104,7 @@ public class TwappDAOImpl implements TwappDAO{
             twappData.setFriendsLocations(friendsList);
 
         } catch (IOException|JAXBException|OAuthException e) {
-            e.printStackTrace();
+            throw new TwitterDAOExeption(e.getMessage(), e.getCause());
         }
 
         return twappData;
@@ -114,7 +114,14 @@ public class TwappDAOImpl implements TwappDAO{
 
     public static void main(String[] args) {
         TwappDAO twappDAO = new TwappDAOImpl();
-        TwappData twappData = twappDAO.getTwitterData("BlizzardCSEU_EN");
+
+        TwappData twappData = null;
+        try {
+            twappData = twappDAO.getTwitterData("BlizzardCSEU_EN");
+        } catch (TwitterDAOExeption twitterDAOExeption) {
+            twitterDAOExeption.printStackTrace();
+        }
+
         System.out.println(twappData.getResponseStatus());
         System.out.println(twappData.getRemainingLimit());
     }
