@@ -6,9 +6,8 @@ package org.cherno.twapp2.twitterDAO;
 public class TwappData {
     private Iterable <String> followersLocations;
     private Iterable <String> friendsLocations;
-    private String userLocation;
     private int responseStatus;
-    private int currentLimit;
+    private int remainingLimit;
 
     public Iterable<String> getFollowersLocations() {
         return followersLocations;
@@ -26,14 +25,6 @@ public class TwappData {
         this.friendsLocations = friendsLocations;
     }
 
-    public String getUserLocation() {
-        return userLocation;
-    }
-
-    public void setUserLocation(String userLocation) {
-        this.userLocation = userLocation;
-    }
-
     public int getResponseStatus() {
         return responseStatus;
     }
@@ -42,11 +33,11 @@ public class TwappData {
         this.responseStatus = responseStatus;
     }
 
-    public int getCurrentLimit() {
-        return currentLimit;
+    public int getRemainingLimit() {
+        return remainingLimit;
     }
 
-    public void setCurrentLimit(int currentLimit) {
-        this.currentLimit = currentLimit;
+    public void setRemainingLimit(int remainingLimit) {
+        this.remainingLimit = remainingLimit;
     }
 }

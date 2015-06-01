@@ -15,6 +15,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -29,42 +31,91 @@ public class TwappDAOImpl implements TwappDAO{
     public TwappData getTwitterData(String userName) {
         Properties oAuthProperties = new Properties();
         TwappData twappData = new TwappData();
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet request;
+        HttpResponse response;
+        long cursor = -1;
+
+        int limit = 1000;
+        int counter = 0;
+
         try {
             oAuthProperties.load(new FileReader(new File("twapi.properties")));
             OAuthConsumer consumer = new CommonsHttpOAuthConsumer(oAuthProperties.getProperty("consumerKey"), oAuthProperties.getProperty("consumerSecret"));
             consumer.setTokenWithSecret(oAuthProperties.getProperty("accessToken"), oAuthProperties.getProperty("accessTokenSecret"));
 
-            HttpClient client = HttpClientBuilder.create().build();
+            List<String> followerList= new ArrayList<>();
+            do {
+                request = new HttpGet(followerListURL + userName + "&cursor=" + cursor);
+                consumer.sign(request);
+                response = client.execute(request);
 
+                int responseStatus = response.getStatusLine().getStatusCode();
+                twappData.setResponseStatus(responseStatus);
+                //not safe
+                twappData.setRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
 
+                if (responseStatus != 200) return twappData;
 
-            HttpGet request = new HttpGet(followerListURL + userName);
-            consumer.sign(request);
-            HttpResponse response = client.execute(request);
+                JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
+                Unmarshaller unmarshaller = jc.createUnmarshaller();
+                unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+                unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
 
-            twappData.setResponseStatus(response.getStatusLine().getStatusCode());
+                StreamSource json = new StreamSource(response.getEntity().getContent());
+                ResultJson rj = unmarshaller.unmarshal(json, ResultJson.class).getValue();
 
-            JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
-            unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
+                for (User user : rj.getUsers())
+                    if (user.getLocation() != null)
+                        followerList.add(user.getLocation());
+                cursor = rj.getNextCursor();
+                counter += rj.getUsers().size();
+            } while (cursor != 0 && counter < limit);
+            twappData.setFollowersLocations(followerList);
 
-            StreamSource json = new StreamSource(response.getEntity().getContent());
-            ResultJson rj = unmarshaller.unmarshal(json, ResultJson.class).getValue();
+            counter = 0;
+            List<String> friendsList= new ArrayList<>();
+            do {
+                request = new HttpGet(friendsListURL + userName + "&cursor=" + cursor);
+                consumer.sign(request);
+                response = client.execute(request);
 
-            for(User user : rj.getUsers()) System.out.println(user.getLocation());
+                int responseStatus = response.getStatusLine().getStatusCode();
+                twappData.setResponseStatus(responseStatus);
+                //not safe
+                twappData.setRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
+
+                if (responseStatus != 200) return twappData;
+
+                JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
+                Unmarshaller unmarshaller = jc.createUnmarshaller();
+                unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+                unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
+
+                StreamSource json = new StreamSource(response.getEntity().getContent());
+                ResultJson rj = unmarshaller.unmarshal(json, ResultJson.class).getValue();
+
+                for (User user : rj.getUsers())
+                    if (user.getLocation() != null)
+                        friendsList.add(user.getLocation());
+                cursor = rj.getNextCursor();
+                counter += rj.getUsers().size();
+            } while (cursor != 0 && counter < limit);
+            twappData.setFriendsLocations(friendsList);
 
         } catch (IOException|JAXBException|OAuthException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return twappData;
     }
 
 
 
     public static void main(String[] args) {
         TwappDAO twappDAO = new TwappDAOImpl();
-        TwappData twappData = twappDAO.getTwitterData("gasenvagen");
+        TwappData twappData = twappDAO.getTwitterData("BlizzardCSEU_EN");
+        System.out.println(twappData.getResponseStatus());
+        System.out.println(twappData.getRemainingLimit());
     }
 }

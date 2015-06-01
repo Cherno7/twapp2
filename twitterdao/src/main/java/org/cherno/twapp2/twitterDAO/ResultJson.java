@@ -8,10 +8,10 @@ import java.util.List;
  */
 public class ResultJson {
         List<User> users;
-        private int nextCursor;
+        private long nextCursor;
 
     @XmlElement(name="next_cursor")
-    public int getNextCursor() {
+    public long getNextCursor() {
         return nextCursor;
     }
 
@@ -23,7 +23,7 @@ public class ResultJson {
         this.users = users;
     }
 
-    public void setNextCursor(int nextCursor) {
+    public void setNextCursor(long nextCursor) {
         this.nextCursor = nextCursor;
     }
 }
