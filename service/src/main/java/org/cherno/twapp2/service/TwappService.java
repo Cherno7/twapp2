@@ -7,5 +7,5 @@ import java.util.List;
  */
 public interface TwappService {
     String getSuggestedLocation(String name);
-    List<String> getLocations(String name);
+    List<String> getLocations(String name, int limit);
 }

@@ -17,13 +17,13 @@ public class TwappServiceImpl implements TwappService{
         return null;
     }
 
-    public List<String> getLocations(String name) {
+    public List<String> getLocations(String name, int limit) {
         TwappDAO twappDAO = new TwappDAOImpl();
         List<String> result = new ArrayList<>();
 
         TwappData twappData;
         try {
-            twappData = twappDAO.getTwitterData(name);
+            twappData = twappDAO.getTwitterData(name, limit);
             for(String location : twappData.getFollowersLocations()) result.add(location);
             for(String location : twappData.getFriendsLocations()) result.add(location);
         } catch (TwitterDAOExeption twitterDAOExeption) {

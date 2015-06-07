@@ -27,7 +27,7 @@ public class TwappDAOImpl implements TwappDAO{
     private static final String friendsListURL = "https://api.twitter.com/1.1/friends/list.json?count=200&skip_status=true&include_user_entities=false&screen_name=";
 
 
-    public TwappData getTwitterData(String userName) throws TwitterDAOExeption {
+    public TwappData getTwitterData(String userName, int limit) throws TwitterDAOExeption {
         Properties oAuthProperties = new Properties();
         TwappData twappData = new TwappData();
         HttpClient client = HttpClientBuilder.create().build();
@@ -35,7 +35,6 @@ public class TwappDAOImpl implements TwappDAO{
         HttpResponse response;
         long cursor = -1;
 
-        int limit = 1000;
         int counter = 0;
 
         try {
