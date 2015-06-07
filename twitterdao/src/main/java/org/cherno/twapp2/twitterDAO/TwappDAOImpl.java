@@ -110,22 +110,4 @@ public class TwappDAOImpl implements TwappDAO{
 
         return twappData;
     }
-
-
-
-    public static void main(String[] args) {
-        TwappDAO twappDAO = new TwappDAOImpl();
-
-        TwappData twappData = null;
-        try {
-            twappData = twappDAO.getTwitterData("medvedevrussia");
-        } catch (TwitterDAOExeption twitterDAOExeption) {
-            twitterDAOExeption.printStackTrace();
-        }
-
-        System.out.println(twappData.getFollowersResponseStatus());
-        System.out.println(twappData.getFriendsResponseStatus());
-        System.out.println(twappData.getFollowersRemainingLimit());
-        System.out.println(twappData.getFriendsRemainingLimit());
-    }
 }

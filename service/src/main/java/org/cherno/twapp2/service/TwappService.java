@@ -1,10 +1,11 @@
 package org.cherno.twapp2.service;
 
-/**
- * Created on 31.05.2015.
- */
-public class TwappService {
-    public static void main(String[] args) {
+import java.util.List;
 
-    }
+/**
+ * Created on 07.06.2015.
+ */
+public interface TwappService {
+    String getSuggestedLocation(String name);
+    List<String> getLocations(String name);
 }

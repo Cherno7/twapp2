@@ -1,12 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>org.cherno.twapp2</groupId>
     <artifactId>restserv</artifactId>
-    <version>1.0</version>
     <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
     <name>restserv</name>
-
+	
     <parent>
         <groupId>org.cherno.twapp2</groupId>
         <artifactId>twapp2</artifactId>
@@ -14,17 +16,44 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.glassfish.jersey</groupId>
+                <artifactId>jersey-bom</artifactId>
+                <version>${jersey.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-grizzly2-http</artifactId>
+        </dependency>
+         <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-moxy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.9</version>
+            <scope>test</scope>
+        </dependency>
+	<dependency>
             <groupId>org.cherno.twapp2</groupId>
             <artifactId>service</artifactId>
             <version>1.0</version>
         </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
+        <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
@@ -34,13 +63,13 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
-                            <mainClass>org.cherno.twapp2.restserv.App</mainClass>
+                            <mainClass>org.cherno.twapp2.restserv.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
                 <version>2.4</version>
-            </plugin>
-            <plugin>
+            </plugin>    
+        	<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -58,5 +87,11 @@
                 <version>2.5.1</version>
             </plugin>
         </plugins>
-    </build>
+
+	</build>
+
+    <properties>
+        <jersey.version>2.17</jersey.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 </project>
