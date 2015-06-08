@@ -53,8 +53,12 @@ public class TwappDAOImpl implements TwappDAO{
                 //not safe
                 twappData.setFollowersRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
 
-                if (responseStatus == 401) return twappData;
-                if (responseStatus == 429) break;
+                if (responseStatus == 401) {
+                    return twappData;
+                }
+                if (responseStatus == 429){
+                    break;
+                }
 
                 JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
                 Unmarshaller unmarshaller = jc.createUnmarshaller();
@@ -73,6 +77,7 @@ public class TwappDAOImpl implements TwappDAO{
             } while (cursor != 0 && counter < limit);
             twappData.setFollowersLocations(followerList);
 
+            cursor = -1;
             counter = 0;
             List<String> friendsList= new ArrayList<>();
             do {
@@ -85,9 +90,12 @@ public class TwappDAOImpl implements TwappDAO{
                 //not safe
                 twappData.setFriendsRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
 
-                if (responseStatus == 401) return twappData;
-                if (responseStatus == 429) break;
-
+                if (responseStatus == 401) {
+                    return twappData;
+                }
+                if (responseStatus == 429){
+                    break;
+                }
                 JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
                 Unmarshaller unmarshaller = jc.createUnmarshaller();
                 unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
