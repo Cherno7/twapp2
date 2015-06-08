@@ -103,8 +103,6 @@ public class TwappServiceImpl implements TwappService{
                 if (!(location.isEmpty() && skipEmpty))
                     fullList.add(location);
 
-            System.out.println(fullList.size());
-
             result.put("Locations", fullList);
             result.put("FriendsLimit", twappData.getFriendsRemainingLimit());
             result.put("FollowersLimit", twappData.getFollowersRemainingLimit());
