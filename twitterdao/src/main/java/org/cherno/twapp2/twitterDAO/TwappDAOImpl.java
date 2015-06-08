@@ -23,8 +23,8 @@ import java.util.Properties;
  */
 public class TwappDAOImpl implements TwappDAO{
 
-    private static final String followerListURL = "https://api.twitter.com/1.1/followers/list.json?count=200&skip_status=true&include_user_entities=false&screen_name=";
-    private static final String friendsListURL = "https://api.twitter.com/1.1/friends/list.json?count=200&skip_status=true&include_user_entities=false&screen_name=";
+    private static final String followerListURL = "https://api.twitter.com/1.1/followers/list.json?count=100&skip_status=true&include_user_entities=false&screen_name=";
+    private static final String friendsListURL = "https://api.twitter.com/1.1/friends/list.json?count=100&skip_status=true&include_user_entities=false&screen_name=";
 
 
     public TwappData getTwitterData(String userName, int limit) throws TwitterDAOExeption {
@@ -67,6 +67,7 @@ public class TwappDAOImpl implements TwappDAO{
                 for (User user : rj.getUsers())
                     if (user.getLocation() != null)
                         followerList.add(user.getLocation());
+
                 cursor = rj.getNextCursor();
                 counter += rj.getUsers().size();
             } while (cursor != 0 && counter < limit);
@@ -98,6 +99,7 @@ public class TwappDAOImpl implements TwappDAO{
                 for (User user : rj.getUsers())
                     if (user.getLocation() != null)
                         friendsList.add(user.getLocation());
+
                 cursor = rj.getNextCursor();
                 counter += rj.getUsers().size();
             } while (cursor != 0 && counter < limit);

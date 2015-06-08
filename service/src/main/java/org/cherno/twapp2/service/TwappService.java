@@ -6,6 +6,6 @@ import java.util.List;
  * Created on 07.06.2015.
  */
 public interface TwappService {
-    String getSuggestedLocation(String name);
-    List<String> getLocations(String name, int limit);
+    String getSuggestedLocation(String name, int limit, boolean skipEmpty);
+    List<String> getLocations(String name, int limit, boolean skipEmpty);
 }
