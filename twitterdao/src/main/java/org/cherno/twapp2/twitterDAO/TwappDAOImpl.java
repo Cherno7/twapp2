@@ -8,6 +8,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -26,6 +28,7 @@ public class TwappDAOImpl implements TwappDAO{
     private static final String followerListURL = "https://api.twitter.com/1.1/followers/list.json?count=100&skip_status=true&include_user_entities=false&screen_name=";
     private static final String friendsListURL = "https://api.twitter.com/1.1/friends/list.json?count=100&skip_status=true&include_user_entities=false&screen_name=";
 
+    private static final Logger logger = LoggerFactory.getLogger(TwappDAOImpl.class);
 
     public TwappData getTwitterData(String userName, int limit) throws TwitterDAOExeption {
         Properties oAuthProperties = new Properties();
@@ -54,9 +57,11 @@ public class TwappDAOImpl implements TwappDAO{
                 twappData.setFollowersRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
 
                 if (responseStatus == 401) {
+                    logger.error("Bad authentication data");
                     return twappData;
                 }
                 if (responseStatus == 429){
+                    logger.warn("Hit the limit while obtaining the followers list");
                     break;
                 }
 
@@ -74,6 +79,7 @@ public class TwappDAOImpl implements TwappDAO{
 
                 cursor = rj.getNextCursor();
                 counter += rj.getUsers().size();
+                logger.info("Processing list of the followers. Cursor = {}, count = {}", cursor, counter);
             } while (cursor != 0 && counter < limit);
             twappData.setFollowersLocations(followerList);
 
@@ -91,11 +97,14 @@ public class TwappDAOImpl implements TwappDAO{
                 twappData.setFriendsRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
 
                 if (responseStatus == 401) {
+                    logger.error("Bad authentication data");
                     return twappData;
                 }
                 if (responseStatus == 429){
+                    logger.warn("Hit the limit while obtaining the friends list");
                     break;
                 }
+
                 JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
                 Unmarshaller unmarshaller = jc.createUnmarshaller();
                 unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
@@ -110,6 +119,7 @@ public class TwappDAOImpl implements TwappDAO{
 
                 cursor = rj.getNextCursor();
                 counter += rj.getUsers().size();
+                logger.info("Processing list of the followers. Cursor = {}, count = {}", cursor, counter);
             } while (cursor != 0 && counter < limit);
             twappData.setFriendsLocations(friendsList);
 

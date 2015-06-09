@@ -4,6 +4,8 @@ import org.cherno.twapp2.twitterDAO.TwappDAO;
 import org.cherno.twapp2.twitterDAO.TwappDAOImpl;
 import org.cherno.twapp2.twitterDAO.TwappData;
 import org.cherno.twapp2.twitterDAO.TwitterDAOExeption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +16,9 @@ import java.util.Map;
  * Created on 31.05.2015.
  */
 public class TwappServiceImpl implements TwappService{
-    TwappDAO twappDAO;
+    private static final Logger logger = LoggerFactory.getLogger(TwappServiceImpl.class);
+
+    private TwappDAO twappDAO;
 
     public TwappServiceImpl() {
         this.twappDAO = new TwappDAOImpl();
@@ -37,6 +41,7 @@ public class TwappServiceImpl implements TwappService{
                 if (!(location.isEmpty() && skipEmpty))
                     fullList.add(location);
 
+            logger.info("Number of locations received = {}", fullList.size());
 
             //first iteration, country-city pairs
             for (String str : fullList) {
@@ -76,6 +81,7 @@ public class TwappServiceImpl implements TwappService{
                 }
             }
 
+            logger.info("Sizes: List1 = {}, List2 = {}, List3 = {}", list1.size(), list2.size(), list3.size());
             result.put("Location", Util.getMostCommon(list1) + ", " + Util.getMostCommon(list2));
             result.put("Optional", Util.getMostCommon(list3));
             result.put("FriendsLimit", twappData.getFriendsRemainingLimit());
@@ -84,7 +90,7 @@ public class TwappServiceImpl implements TwappService{
             result.put("FollowersStatus", twappData.getFollowersResponseStatus());
 
         } catch (TwitterDAOExeption twitterDAOExeption) {
-            twitterDAOExeption.printStackTrace();
+            logger.error("{}", twitterDAOExeption.getMessage());
         }
         return result;
     }
@@ -103,6 +109,8 @@ public class TwappServiceImpl implements TwappService{
                 if (!(location.isEmpty() && skipEmpty))
                     fullList.add(location);
 
+            logger.info("Number of locations received = {}", fullList.size());
+
             result.put("Locations", fullList);
             result.put("FriendsLimit", twappData.getFriendsRemainingLimit());
             result.put("FollowersLimit", twappData.getFollowersRemainingLimit());
@@ -111,7 +119,7 @@ public class TwappServiceImpl implements TwappService{
 
 
         } catch (TwitterDAOExeption twitterDAOExeption) {
-            twitterDAOExeption.printStackTrace();
+            logger.error("{}", twitterDAOExeption.getMessage());
         }
         return result;
     }
