@@ -1,12 +1,13 @@
 package org.cherno.twapp2.restserv;
 
+import org.cherno.twapp2.service.LocationsModel;
+import org.cherno.twapp2.service.SuggestedLocationModel;
 import org.cherno.twapp2.service.TwappService;
 import org.cherno.twapp2.service.TwappServiceImpl;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,21 +25,16 @@ public class LocationsResource {
 
         TwappService twappService = new TwappServiceImpl();
         Locations locations = new Locations();
-        Map<String, Object> data = twappService.getLocations(name, limit, skipEmpty);
-        locations.setLocations((List<String>)data.get("Locations"));
+        LocationsModel locationsModel = twappService.getLocations(name, limit, skipEmpty);
+        locations.setLocations(locationsModel.getLocations());
 
-        int friendsStatus = (int)data.get("FriendsStatus");
-        int followersStatus = (int)data.get("FollowersStatus");
-        int followersRemainingLimit = (int)data.get("FollowersLimit");
-        int friendsRemainingLimit = (int)data.get("FriendsLimit");
+        Response.ResponseBuilder response = Response.status(200);
+        response.entity(locations);
 
-        Response response = Response.status(200).entity(locations)
-                .header("twitter-friends-status", friendsStatus)
-                .header("twitter-followers-status", followersStatus)
-                .header("twitter-friends-limit", friendsRemainingLimit)
-                .header("twitter-followers-limit", followersRemainingLimit)
-                .build();
-        return response;
+        for(Map.Entry<String, Integer> header : locationsModel.getHeaders().entrySet()){
+            response.header(header.getKey(), header.getValue());
+        }
+        return response.build();
     }
 
     @GET
@@ -50,22 +46,17 @@ public class LocationsResource {
 
         TwappService twappService = new TwappServiceImpl();
         SuggestedLocation location = new SuggestedLocation();
-        Map<String, Object> data = twappService.getSuggestedLocation(name, limit, skipEmpty);
-        location.setSuggestedLocation((String)data.get("Location"));
-        location.setOptionalLocation((String)data.get("Optional"));
+        SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation(name, limit, skipEmpty);
+        location.setSuggestedLocation(suggestedLocationModel.getSuggestedLocation());
+        location.setOptionalLocation(suggestedLocationModel.getOptionalLocation());
 
-        int friendsStatus = (int)data.get("FriendsStatus");
-        int followersStatus = (int)data.get("FollowersStatus");
-        int followersRemainingLimit = (int)data.get("FollowersLimit");
-        int friendsRemainingLimit = (int)data.get("FriendsLimit");
+        Response.ResponseBuilder response = Response.status(200);
+        response.entity(location);
 
-        Response response = Response.status(200).entity(location)
-                .header("twitter-friends-status", friendsStatus)
-                .header("twitter-followers-status", followersStatus)
-                .header("twitter-friends-limit", friendsRemainingLimit)
-                .header("twitter-followers-limit", followersRemainingLimit)
-                .build();
-        return response;
+        for(Map.Entry<String, Integer> header : suggestedLocationModel.getHeaders().entrySet()){
+            response.header(header.getKey(), header.getValue());
+        }
+        return response.build();
     }
 
 }

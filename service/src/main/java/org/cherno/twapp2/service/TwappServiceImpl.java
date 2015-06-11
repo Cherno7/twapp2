@@ -24,10 +24,11 @@ public class TwappServiceImpl implements TwappService{
         this.twappDAO = new TwappDAOImpl();
     }
 
-    public Map<String, Object> getSuggestedLocation(String name, int limit, boolean skipEmpty) {
+    public SuggestedLocationModel getSuggestedLocation(String name, int limit, boolean skipEmpty) {
         List<String> fullList = new ArrayList<>();
         TwappData twappData;
-        Map<String, Object> result = new HashMap<>();
+        SuggestedLocationModel suggestedLocationModel = new SuggestedLocationModel();
+
         List<String> list1 = new ArrayList<>();
         List<String> list2 = new ArrayList<>();
         List<String> list3 = new ArrayList<>();
@@ -82,23 +83,26 @@ public class TwappServiceImpl implements TwappService{
             }
 
             logger.info("Sizes: List1 = {}, List2 = {}, List3 = {}", list1.size(), list2.size(), list3.size());
-            result.put("Location", Util.getMostCommon(list1) + ", " + Util.getMostCommon(list2));
-            result.put("Optional", Util.getMostCommon(list3));
-            result.put("FriendsLimit", twappData.getFriendsRemainingLimit());
-            result.put("FollowersLimit", twappData.getFollowersRemainingLimit());
-            result.put("FriendsStatus", twappData.getFriendsResponseStatus());
-            result.put("FollowersStatus", twappData.getFollowersResponseStatus());
+            suggestedLocationModel.setSuggestedLocation(Util.getMostCommon(list1) + ", " + Util.getMostCommon(list2));
+            suggestedLocationModel.setOptionalLocation(Util.getMostCommon(list3));
+            Map<String, Integer> headers = new HashMap<>();
 
+            headers.put("twitter-friends-limit", twappData.getFriendsRemainingLimit());
+            headers.put("twitter-followers-limit", twappData.getFollowersRemainingLimit());
+            headers.put("twitter-friends-status", twappData.getFriendsResponseStatus());
+            headers.put("twitter-followers-status", twappData.getFollowersResponseStatus());
+
+            suggestedLocationModel.setHeaders(headers);
         } catch (TwitterDAOExeption twitterDAOExeption) {
             logger.error("{}", twitterDAOExeption.getMessage());
         }
-        return result;
+        return suggestedLocationModel;
     }
 
-    public Map<String, Object> getLocations(String name, int limit, boolean skipEmpty) {
+    public LocationsModel getLocations(String name, int limit, boolean skipEmpty) {
         List<String> fullList = new ArrayList<>();
         TwappData twappData;
-        Map<String, Object> result = new HashMap<>();
+        LocationsModel locationsModel = new LocationsModel();
 
         try {
             twappData = twappDAO.getTwitterData(name, limit);
@@ -111,16 +115,18 @@ public class TwappServiceImpl implements TwappService{
 
             logger.info("Number of locations received = {}", fullList.size());
 
-            result.put("Locations", fullList);
-            result.put("FriendsLimit", twappData.getFriendsRemainingLimit());
-            result.put("FollowersLimit", twappData.getFollowersRemainingLimit());
-            result.put("FriendsStatus", twappData.getFriendsResponseStatus());
-            result.put("FollowersStatus", twappData.getFollowersResponseStatus());
+            locationsModel.setLocations(fullList);
 
+            Map<String, Integer> headers = new HashMap<>();
+            headers.put("twitter-friends-limit", twappData.getFriendsRemainingLimit());
+            headers.put("twitter-followers-limit", twappData.getFollowersRemainingLimit());
+            headers.put("twitter-friends-status", twappData.getFriendsResponseStatus());
+            headers.put("twitter-followers-status", twappData.getFollowersResponseStatus());
+            locationsModel.setHeaders(headers);
 
         } catch (TwitterDAOExeption twitterDAOExeption) {
             logger.error("{}", twitterDAOExeption.getMessage());
         }
-        return result;
+        return locationsModel;
     }
 }
