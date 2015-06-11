@@ -1,5 +1,8 @@
 package org.cherno.twapp2.restserv;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+import org.cherno.twapp2.restserv.sdargs.ConfigurationArgs;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -22,6 +25,7 @@ import java.util.logging.Logger;
 public class Main {
     // Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URI = "http://localhost:8080/twapp/";
+
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
      * @return Grizzly HTTP server.
@@ -29,7 +33,8 @@ public class Main {
     public static HttpServer startServer() {
         // create a resource config that scans for JAX-RS resources and providers
         // in com.example package
-        final ResourceConfig rc = new ResourceConfig().packages("org.cherno.twapp2.restserv");
+        final ResourceConfig rc = new ResourceConfig().packages("org.cherno.twapp2.restserv")
+                .register(createMoxyJsonResolver());
 
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
@@ -47,6 +52,19 @@ public class Main {
         SLF4JBridgeHandler.install();
         Logger.getLogger("global").setLevel(Level.INFO);
 
+        /*final ConfigurationArgs converterArgs = new ConfigurationArgs();
+        JCommander jCommander = new JCommander(converterArgs);
+
+        try {
+            jCommander.parse(args);
+        } catch (ParameterException e) {
+            jCommander.usage();
+            return;
+        }
+
+        System.out.println(converterArgs.getConfigurationFile());
+        */
+
         final HttpServer server = startServer();
         System.out.println(String.format("Jersey app started with WADL available at "
                 + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
@@ -54,11 +72,6 @@ public class Main {
         server.shutdownNow();
     }
 	
-    public static ResourceConfig createApp() {
-        return new ResourceConfig()
-                .packages("org.glassfish.jersey.examples.jsonmoxy")
-                .register(createMoxyJsonResolver());
-    }
 
     public static ContextResolver<MoxyJsonConfig> createMoxyJsonResolver() {
         final MoxyJsonConfig moxyJsonConfig = new MoxyJsonConfig();
