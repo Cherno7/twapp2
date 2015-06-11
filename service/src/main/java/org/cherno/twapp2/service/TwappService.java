@@ -1,11 +1,11 @@
 package org.cherno.twapp2.service;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 07.06.2015.
  */
 public interface TwappService {
-    String getSuggestedLocation(String name, int limit, boolean skipEmpty);
-    List<String> getLocations(String name, int limit, boolean skipEmpty);
+    Map<String, Object> getSuggestedLocation(String name, int limit, boolean skipEmpty);
+    Map<String, Object> getLocations(String name, int limit, boolean skipEmpty);
 }
