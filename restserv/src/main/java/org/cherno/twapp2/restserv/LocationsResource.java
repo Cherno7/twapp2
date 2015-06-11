@@ -5,6 +5,7 @@ import org.cherno.twapp2.service.SuggestedLocationModel;
 import org.cherno.twapp2.service.TwappService;
 import org.cherno.twapp2.service.TwappServiceImpl;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,6 +29,7 @@ public class LocationsResource {
         LocationsModel locationsModel = twappService.getLocations(name, limit, skipEmpty);
         locations.setLocations(locationsModel.getLocations());
 
+
         Response.ResponseBuilder response = Response.status(200);
         response.entity(locations);
 
@@ -46,6 +48,7 @@ public class LocationsResource {
 
         TwappService twappService = new TwappServiceImpl();
         SuggestedLocation location = new SuggestedLocation();
+
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation(name, limit, skipEmpty);
         location.setSuggestedLocation(suggestedLocationModel.getSuggestedLocation());
         location.setOptionalLocation(suggestedLocationModel.getOptionalLocation());

@@ -60,6 +60,10 @@ public class TwappDAOImpl implements TwappDAO{
                     logger.error("Bad authentication data");
                     return twappData;
                 }
+                if (responseStatus == 404) {
+                    logger.error("Not found");
+                    return twappData;
+                }
                 if (responseStatus == 429){
                     logger.warn("Hit the limit while obtaining the followers list");
                     break;
@@ -96,6 +100,10 @@ public class TwappDAOImpl implements TwappDAO{
                 //not safe
                 twappData.setFriendsRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
 
+                if (responseStatus == 404) {
+                    logger.error("Not found");
+                    return twappData;
+                }
                 if (responseStatus == 401) {
                     logger.error("Bad authentication data");
                     return twappData;

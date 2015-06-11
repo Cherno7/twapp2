@@ -35,12 +35,14 @@ public class TwappServiceImpl implements TwappService{
 
         try {
             twappData = twappDAO.getTwitterData(name, limit);
-            for (String location : twappData.getFollowersLocations())
-                if (!(location.isEmpty() && skipEmpty))
-                    fullList.add(location);
-            for(String location : twappData.getFriendsLocations())
-                if (!(location.isEmpty() && skipEmpty))
-                    fullList.add(location);
+            if (twappData.getFollowersLocations() != null)
+                for (String location : twappData.getFollowersLocations())
+                    if (!(location.isEmpty() && skipEmpty))
+                        fullList.add(location);
+            if (twappData.getFriendsLocations() != null)
+                for(String location : twappData.getFriendsLocations())
+                    if (!(location.isEmpty() && skipEmpty))
+                        fullList.add(location);
 
             logger.info("Number of locations received = {}", fullList.size());
 
@@ -87,10 +89,11 @@ public class TwappServiceImpl implements TwappService{
             suggestedLocationModel.setOptionalLocation(Util.getMostCommon(list3));
             Map<String, Integer> headers = new HashMap<>();
 
-            headers.put("twitter-friends-limit", twappData.getFriendsRemainingLimit());
-            headers.put("twitter-followers-limit", twappData.getFollowersRemainingLimit());
-            headers.put("twitter-friends-status", twappData.getFriendsResponseStatus());
             headers.put("twitter-followers-status", twappData.getFollowersResponseStatus());
+            headers.put("twitter-friends-status", twappData.getFriendsResponseStatus());
+            headers.put("twitter-followers-limit", twappData.getFollowersRemainingLimit());
+            headers.put("twitter-friends-limit", twappData.getFriendsRemainingLimit());
+
 
             suggestedLocationModel.setHeaders(headers);
         } catch (TwitterDAOExeption twitterDAOExeption) {
@@ -106,22 +109,26 @@ public class TwappServiceImpl implements TwappService{
 
         try {
             twappData = twappDAO.getTwitterData(name, limit);
-            for (String location : twappData.getFollowersLocations())
-                if (!(location.isEmpty() && skipEmpty))
-                    fullList.add(location);
-            for(String location : twappData.getFriendsLocations())
-                if (!(location.isEmpty() && skipEmpty))
-                    fullList.add(location);
+            if (twappData.getFollowersLocations() != null)
+                for (String location : twappData.getFollowersLocations())
+                    if (!(location.isEmpty() && skipEmpty))
+                        fullList.add(location);
+            if (twappData.getFriendsLocations() != null)
+                for(String location : twappData.getFriendsLocations())
+                    if (!(location.isEmpty() && skipEmpty))
+                        fullList.add(location);
 
             logger.info("Number of locations received = {}", fullList.size());
 
             locationsModel.setLocations(fullList);
 
             Map<String, Integer> headers = new HashMap<>();
-            headers.put("twitter-friends-limit", twappData.getFriendsRemainingLimit());
-            headers.put("twitter-followers-limit", twappData.getFollowersRemainingLimit());
-            headers.put("twitter-friends-status", twappData.getFriendsResponseStatus());
+
             headers.put("twitter-followers-status", twappData.getFollowersResponseStatus());
+            headers.put("twitter-friends-status", twappData.getFriendsResponseStatus());
+            headers.put("twitter-followers-limit", twappData.getFollowersRemainingLimit());
+            headers.put("twitter-friends-limit", twappData.getFriendsRemainingLimit());
+
             locationsModel.setHeaders(headers);
 
         } catch (TwitterDAOExeption twitterDAOExeption) {
