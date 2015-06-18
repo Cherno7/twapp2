@@ -1,5 +1,6 @@
 package org.cherno.twapp2.service;
 
+import org.apache.commons.configuration.Configuration;
 import org.cherno.twapp2.twitterDAO.TwappDAO;
 import org.cherno.twapp2.twitterDAO.TwappDAOImpl;
 import org.cherno.twapp2.twitterDAO.TwappData;
@@ -20,8 +21,8 @@ public class TwappServiceImpl implements TwappService{
 
     private TwappDAO twappDAO;
 
-    public TwappServiceImpl() {
-        this.twappDAO = new TwappDAOImpl();
+    public TwappServiceImpl(Configuration externalConfiguration) {
+        this.twappDAO = new TwappDAOImpl(externalConfiguration);
     }
 
     public SuggestedLocationModel getSuggestedLocation(String name, int limit, boolean skipEmpty) {

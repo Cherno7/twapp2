@@ -2,6 +2,10 @@ package org.cherno.twapp2.restserv;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.cherno.twapp2.restserv.sdargs.ConfigurationArgs;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -19,26 +23,28 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
- * Main class.
- *
+ * Created on 08.06.2015.
  */
 public class Main {
-    // Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URI = "http://localhost:8080/twapp/";
-
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
      * @return Grizzly HTTP server.
      */
-    public static HttpServer startServer() {
-        // create a resource config that scans for JAX-RS resources and providers
-        // in com.example package
+    private static HttpServer startServer(Configuration externalConfiguration) {
+        CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
+        compositeConfiguration.addConfiguration(externalConfiguration);
+        try {
+            compositeConfiguration.addConfiguration(new PropertiesConfiguration(Main.class.getResource("restserv.properties")));
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
+
+
         final ResourceConfig rc = new ResourceConfig().packages("org.cherno.twapp2.restserv")
                 .register(createMoxyJsonResolver());
+        rc.property("configuration", externalConfiguration);
 
-        // create and start a new instance of grizzly http server
-        // exposing the Jersey application at BASE_URI
-        return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
+        return GrizzlyHttpServerFactory.createHttpServer(URI.create(compositeConfiguration.getString("restserv.URI")), rc);
     }
 
     /**
@@ -52,7 +58,7 @@ public class Main {
         SLF4JBridgeHandler.install();
         Logger.getLogger("global").setLevel(Level.INFO);
 
-        /*final ConfigurationArgs converterArgs = new ConfigurationArgs();
+        final ConfigurationArgs converterArgs = new ConfigurationArgs();
         JCommander jCommander = new JCommander(converterArgs);
 
         try {
@@ -62,18 +68,22 @@ public class Main {
             return;
         }
 
-        System.out.println(converterArgs.getConfigurationFile());
-        */
+        Configuration externalConfiguration = null;
+        try {
+            externalConfiguration = new PropertiesConfiguration(converterArgs.getConfigurationFile());
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
 
-        final HttpServer server = startServer();
-        System.out.println(String.format("Jersey app started with WADL available at "
-                + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
+
+        final HttpServer server = startServer(externalConfiguration);
+        System.out.println("Server started. Hit enter to stop it...");
         System.in.read();
         server.shutdownNow();
     }
 	
 
-    public static ContextResolver<MoxyJsonConfig> createMoxyJsonResolver() {
+    private static ContextResolver<MoxyJsonConfig> createMoxyJsonResolver() {
         final MoxyJsonConfig moxyJsonConfig = new MoxyJsonConfig();
         Map<String, String> namespacePrefixMapper = new HashMap<>(1);
         namespacePrefixMapper.put("http://www.w3.org/2001/XMLSchema-instance", "xsi");

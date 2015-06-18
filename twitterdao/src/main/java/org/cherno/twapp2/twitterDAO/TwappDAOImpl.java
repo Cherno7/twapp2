@@ -3,6 +3,10 @@ package org.cherno.twapp2.twitterDAO;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthException;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -18,20 +22,33 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Created on 28.05.2015.
  */
 public class TwappDAOImpl implements TwappDAO{
 
-    private static final String followerListURL = "https://api.twitter.com/1.1/followers/list.json?count=100&skip_status=true&include_user_entities=false&screen_name=";
-    private static final String friendsListURL = "https://api.twitter.com/1.1/friends/list.json?count=100&skip_status=true&include_user_entities=false&screen_name=";
-
+    private CompositeConfiguration configuration = new CompositeConfiguration();
     private static final Logger logger = LoggerFactory.getLogger(TwappDAOImpl.class);
 
+    public TwappDAOImpl() {
+        try {
+            this.configuration.addConfiguration(new PropertiesConfiguration(TwappDAOImpl.class.getResource("twitterdao.properties")));
+        } catch (ConfigurationException e) {
+            logger.error("{}", e.getMessage());
+        }
+    }
+
+    public TwappDAOImpl(Configuration externalConfiguration) {
+        this.configuration.addConfiguration(externalConfiguration);
+        try {
+            this.configuration.addConfiguration(new PropertiesConfiguration(TwappDAOImpl.class.getResource("twitterdao.properties")));
+        } catch (ConfigurationException e) {
+            logger.error("{}", e.getMessage());
+        }
+    }
+
     public TwappData getTwitterData(String userName, int limit) throws TwitterDAOExeption {
-        Properties oAuthProperties = new Properties();
         TwappData twappData = new TwappData();
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet request;
@@ -40,14 +57,14 @@ public class TwappDAOImpl implements TwappDAO{
 
         int counter = 0;
 
+
         try {
-            oAuthProperties.load(new FileReader(new File("twapi.properties")));
-            OAuthConsumer consumer = new CommonsHttpOAuthConsumer(oAuthProperties.getProperty("consumerKey"), oAuthProperties.getProperty("consumerSecret"));
-            consumer.setTokenWithSecret(oAuthProperties.getProperty("accessToken"), oAuthProperties.getProperty("accessTokenSecret"));
+            OAuthConsumer consumer = new CommonsHttpOAuthConsumer(configuration.getString("twitterdao.consumerKey"), configuration.getString("twitterdao.consumerSecret"));
+            consumer.setTokenWithSecret(configuration.getString("twitterdao.accessToken"), configuration.getString("twitterdao.accessTokenSecret"));
 
             List<String> followerList= new ArrayList<>();
             do {
-                request = new HttpGet(followerListURL + userName + "&cursor=" + cursor);
+                request = new HttpGet(configuration.getString("twitterdao.followerListURL") + userName + "&cursor=" + cursor);
                 consumer.sign(request);
                 response = client.execute(request);
 
@@ -91,7 +108,7 @@ public class TwappDAOImpl implements TwappDAO{
             counter = 0;
             List<String> friendsList= new ArrayList<>();
             do {
-                request = new HttpGet(friendsListURL + userName + "&cursor=" + cursor);
+                request = new HttpGet(configuration.getString("twitterdao.friendsListURL") + userName + "&cursor=" + cursor);
                 consumer.sign(request);
                 response = client.execute(request);
 

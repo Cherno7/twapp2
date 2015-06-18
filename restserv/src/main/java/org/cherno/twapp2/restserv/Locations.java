@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
- * @author Pavel Bucek (pavel.bucek at oracle.com)
+ * Created on 08.06.2015.
  */
 @XmlRootElement
 public class Locations {

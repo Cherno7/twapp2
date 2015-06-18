@@ -1,21 +1,25 @@
 package org.cherno.twapp2.restserv;
 
+import org.apache.commons.configuration.Configuration;
 import org.cherno.twapp2.service.LocationsModel;
 import org.cherno.twapp2.service.SuggestedLocationModel;
 import org.cherno.twapp2.service.TwappService;
 import org.cherno.twapp2.service.TwappServiceImpl;
 
-import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 
 /**
- * @author Pavel Bucek (pavel.bucek at oracle.com)
+ * Created on 08.06.2015.
  */
 @Path("/")
 public class LocationsResource {
+
+    @Context
+    javax.ws.rs.core.Configuration config;
 
     @GET
     @Path("locations/{name: [a-zA-Z][a-zA-Z_0-9]*}")
@@ -24,7 +28,9 @@ public class LocationsResource {
                                       @DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
                                       @PathParam("name") String name) {
 
-        TwappService twappService = new TwappServiceImpl();
+        Configuration externalConfiguration = (Configuration) config.getProperty("configuration");
+
+        TwappService twappService = new TwappServiceImpl(externalConfiguration);
         Locations locations = new Locations();
         LocationsModel locationsModel = twappService.getLocations(name, limit, skipEmpty);
         locations.setLocations(locationsModel.getLocations());
@@ -46,9 +52,10 @@ public class LocationsResource {
                                       @DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
                                       @PathParam("name") String name) {
 
-        TwappService twappService = new TwappServiceImpl();
-        SuggestedLocation location = new SuggestedLocation();
+        Configuration externalConfiguration = (Configuration) config.getProperty("configuration");
 
+        TwappService twappService = new TwappServiceImpl(externalConfiguration);
+        SuggestedLocation location = new SuggestedLocation();
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation(name, limit, skipEmpty);
         location.setSuggestedLocation(suggestedLocationModel.getSuggestedLocation());
         location.setOptionalLocation(suggestedLocationModel.getOptionalLocation());
