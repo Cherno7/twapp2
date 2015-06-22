@@ -1,5 +1,7 @@
 package org.cherno.twapp2.twitterDAO;
 
+import java.util.Collections;
+
 /**
  * Created on 31.05.2015.
  */
@@ -12,6 +14,10 @@ public class TwappData {
     private int followersRemainingLimit;
     private int friendsRemainingLimit;
 
+    public TwappData() {
+       this.followersLocations = Collections.emptyList();
+       this.friendsLocations = Collections.emptyList();
+    }
 
     public Iterable<String> getFollowersLocations() {
         return followersLocations;

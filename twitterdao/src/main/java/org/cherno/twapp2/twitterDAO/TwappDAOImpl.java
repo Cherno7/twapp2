@@ -33,7 +33,7 @@ public class TwappDAOImpl implements TwappDAO{
 
     public TwappDAOImpl() {
         try {
-            this.configuration.addConfiguration(new PropertiesConfiguration(TwappDAOImpl.class.getResource("twitterdao.properties")));
+            this.configuration.addConfiguration(new PropertiesConfiguration("twitterdao.properties"));
         } catch (ConfigurationException e) {
             logger.error("{}", e.getMessage());
         }
@@ -42,7 +42,7 @@ public class TwappDAOImpl implements TwappDAO{
     public TwappDAOImpl(Configuration externalConfiguration) {
         this.configuration.addConfiguration(externalConfiguration);
         try {
-            this.configuration.addConfiguration(new PropertiesConfiguration(TwappDAOImpl.class.getResource("twitterdao.properties")));
+            this.configuration.addConfiguration(new PropertiesConfiguration("twitterdao.properties"));
         } catch (ConfigurationException e) {
             logger.error("{}", e.getMessage());
         }
@@ -62,7 +62,8 @@ public class TwappDAOImpl implements TwappDAO{
             OAuthConsumer consumer = new CommonsHttpOAuthConsumer(configuration.getString("twitterdao.consumerKey"), configuration.getString("twitterdao.consumerSecret"));
             consumer.setTokenWithSecret(configuration.getString("twitterdao.accessToken"), configuration.getString("twitterdao.accessTokenSecret"));
 
-            List<String> followerList= new ArrayList<>();
+            List<String> followerList = new ArrayList<>();
+
             do {
                 request = new HttpGet(configuration.getString("twitterdao.followerListURL") + userName + "&cursor=" + cursor);
                 consumer.sign(request);
@@ -106,7 +107,7 @@ public class TwappDAOImpl implements TwappDAO{
 
             cursor = -1;
             counter = 0;
-            List<String> friendsList= new ArrayList<>();
+            List<String> friendsList = new ArrayList<>();
             do {
                 request = new HttpGet(configuration.getString("twitterdao.friendsListURL") + userName + "&cursor=" + cursor);
                 consumer.sign(request);

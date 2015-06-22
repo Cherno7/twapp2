@@ -11,6 +11,7 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.moxy.json.MoxyJsonConfig;
+import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.ext.ContextResolver;
@@ -26,25 +27,20 @@ import java.util.logging.Logger;
  * Created on 08.06.2015.
  */
 public class Main {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Main.class);
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
      * @return Grizzly HTTP server.
      */
-    private static HttpServer startServer(Configuration externalConfiguration) {
-        CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
-        compositeConfiguration.addConfiguration(externalConfiguration);
-        try {
-            compositeConfiguration.addConfiguration(new PropertiesConfiguration(Main.class.getResource("restserv.properties")));
-        } catch (ConfigurationException e) {
-            e.printStackTrace();
-        }
 
 
+    private static HttpServer startServer(Configuration externalConfiguration, String uri) {
         final ResourceConfig rc = new ResourceConfig().packages("org.cherno.twapp2.restserv")
                 .register(createMoxyJsonResolver());
         rc.property("configuration", externalConfiguration);
 
-        return GrizzlyHttpServerFactory.createHttpServer(URI.create(compositeConfiguration.getString("restserv.URI")), rc);
+        return GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), rc);
     }
 
     /**
@@ -53,35 +49,39 @@ public class Main {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        LogManager.getLogManager().reset();
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-        Logger.getLogger("global").setLevel(Level.INFO);
+        installSLF4JBridge();
 
-        final ConfigurationArgs converterArgs = new ConfigurationArgs();
-        JCommander jCommander = new JCommander(converterArgs);
+        Configuration externalConfiguration = null;
+        CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
+
+        final ConfigurationArgs configurationArgs = new ConfigurationArgs();
+        JCommander jCommander = new JCommander(configurationArgs);
 
         try {
             jCommander.parse(args);
         } catch (ParameterException e) {
+            logger.error("{}", e.getMessage());
             jCommander.usage();
             return;
         }
 
-        Configuration externalConfiguration = null;
         try {
-            externalConfiguration = new PropertiesConfiguration(converterArgs.getConfigurationFile());
+            externalConfiguration = new PropertiesConfiguration(configurationArgs.getConfigurationFile());
+            compositeConfiguration.addConfiguration(externalConfiguration);
+            compositeConfiguration.addConfiguration(new PropertiesConfiguration("restserv.properties"));
         } catch (ConfigurationException e) {
-            e.printStackTrace();
+            logger.error("{}", e.getMessage());
         }
 
-
-        final HttpServer server = startServer(externalConfiguration);
-        System.out.println("Server started. Hit enter to stop it...");
-        System.in.read();
-        server.shutdownNow();
+        startServer(externalConfiguration, compositeConfiguration.getString("restserv.URI"));
     }
-	
+
+
+    private static void installSLF4JBridge() {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+    }
 
     private static ContextResolver<MoxyJsonConfig> createMoxyJsonResolver() {
         final MoxyJsonConfig moxyJsonConfig = new MoxyJsonConfig();

@@ -24,7 +24,7 @@ public class LocationsResource {
     @GET
     @Path("locations/{name: [a-zA-Z][a-zA-Z_0-9]*}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response LocationsResource(@DefaultValue("1000") @QueryParam("max_results") int limit,
+    public Response fullListOfLocationsResource(@DefaultValue("1000") @QueryParam("max_results") int limit,
                                       @DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
                                       @PathParam("name") String name) {
 
@@ -48,7 +48,7 @@ public class LocationsResource {
     @GET
     @Path("slocation/{name: [a-zA-Z][a-zA-Z_0-9]*}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response SuggestedLocationsResource(@DefaultValue("1000") @QueryParam("max_results") int limit,
+    public Response suggestedLocationResource(@DefaultValue("1000") @QueryParam("max_results") int limit,
                                       @DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
                                       @PathParam("name") String name) {
 

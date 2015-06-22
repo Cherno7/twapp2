@@ -36,14 +36,12 @@ public class TwappServiceImpl implements TwappService{
 
         try {
             twappData = twappDAO.getTwitterData(name, limit);
-            if (twappData.getFollowersLocations() != null)
-                for (String location : twappData.getFollowersLocations())
-                    if (!(location.isEmpty() && skipEmpty))
-                        fullList.add(location);
-            if (twappData.getFriendsLocations() != null)
-                for(String location : twappData.getFriendsLocations())
-                    if (!(location.isEmpty() && skipEmpty))
-                        fullList.add(location);
+            for (String location : twappData.getFollowersLocations())
+                if (!(location.isEmpty() && skipEmpty))
+                    fullList.add(location);
+            for (String location : twappData.getFriendsLocations())
+                if (!(location.isEmpty() && skipEmpty))
+                    fullList.add(location);
 
             logger.info("Number of locations received = {}", fullList.size());
 

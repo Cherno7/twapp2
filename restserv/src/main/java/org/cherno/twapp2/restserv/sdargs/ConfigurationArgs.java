@@ -8,7 +8,7 @@ import java.io.File;
  * Created by Solovjev Ivan on 07.11.2014.
  */
 public class ConfigurationArgs {
-    @Parameter(names = {"-c", "--config"}, description = "File with project configuration", required = false, converter = FileArgConverter.class, validateWith = FileArgValidator.class)
+    @Parameter(names = {"-c", "--config"}, description = "File with project configuration", required = true, converter = FileArgConverter.class, validateWith = FileArgValidator.class)
     private File configurationFile;
 
     public File getConfigurationFile() {
