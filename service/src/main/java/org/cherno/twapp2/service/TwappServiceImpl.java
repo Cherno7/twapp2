@@ -25,6 +25,10 @@ public class TwappServiceImpl implements TwappService{
         this.twappDAO = new TwappDAOImpl(externalConfiguration);
     }
 
+    public TwappServiceImpl(Configuration externalConfiguration, TwappDAO twappDAO) {
+        this.twappDAO = twappDAO;
+    }
+
     public SuggestedLocationModel getSuggestedLocation(String name, int limit, boolean skipEmpty) {
         List<String> fullList = new ArrayList<>();
         TwappData twappData;
@@ -86,8 +90,8 @@ public class TwappServiceImpl implements TwappService{
             logger.info("Sizes: List1 = {}, List2 = {}, List3 = {}", list1.size(), list2.size(), list3.size());
             suggestedLocationModel.setSuggestedLocation(Util.getMostCommon(list1) + ", " + Util.getMostCommon(list2));
             suggestedLocationModel.setOptionalLocation(Util.getMostCommon(list3));
-            Map<String, Integer> headers = new HashMap<>();
 
+            Map<String, Integer> headers = new HashMap<>();
             headers.put("twitter-followers-status", twappData.getFollowersResponseStatus());
             headers.put("twitter-friends-status", twappData.getFriendsResponseStatus());
             headers.put("twitter-followers-limit", twappData.getFollowersRemainingLimit());

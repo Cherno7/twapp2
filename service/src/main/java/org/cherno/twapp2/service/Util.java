@@ -9,6 +9,8 @@ import java.util.Map;
  */
 public class Util {
     public static <T> T getMostCommon(List<T> list) {
+        if (list.isEmpty()) return null;
+
         Map<T, Integer> map = new HashMap<>();
 
         for (T element : list) {
