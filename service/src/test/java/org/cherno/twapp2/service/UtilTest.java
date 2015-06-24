@@ -13,6 +13,6 @@ public class UtilTest {
     public void testGetMostCommon() throws Exception {
         final List<String> testList = Arrays.asList("1","2","3","1","1","2","2","1");
         final String result = Util.getMostCommon(testList);
-        assertEquals(result, "1");
+        assertEquals("1", result);
     }
 }

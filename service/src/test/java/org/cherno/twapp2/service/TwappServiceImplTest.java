@@ -1,6 +1,5 @@
 package org.cherno.twapp2.service;
 
-import org.apache.commons.configuration.Configuration;
 import org.cherno.twapp2.twitterDAO.TwappDAO;
 import org.cherno.twapp2.twitterDAO.TwappData;
 import org.junit.Before;
@@ -19,9 +18,6 @@ public class TwappServiceImplTest {
 
     @Mock
     TwappDAO twappDAO;
-
-    @Mock
-    Configuration testConfiguration;
 
     @Before
     public void setUp() throws Exception {
@@ -51,30 +47,29 @@ public class TwappServiceImplTest {
 
     @Test
     public void testGetSuggestedLocationPartial() throws Exception {
-        TwappService twappService = new TwappServiceImpl(testConfiguration, twappDAO);
+        TwappService twappService = new TwappServiceImpl(twappDAO);
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testPartial", 100, true);
         assertEquals("russia, ufa", suggestedLocationModel.getSuggestedLocation());
     }
 
     @Test
     public void testGetSuggestedLocationFull() throws Exception {
-        TwappService twappService = new TwappServiceImpl(testConfiguration, twappDAO);
+        TwappService twappService = new TwappServiceImpl(twappDAO);
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testFull", 100, true);
         assertEquals("russia, omsk", suggestedLocationModel.getSuggestedLocation());
     }
 
     @Test
     public void testGetLocationsSkipEmpty() throws Exception {
-        TwappService twappService = new TwappServiceImpl(testConfiguration, twappDAO);
+        TwappService twappService = new TwappServiceImpl(twappDAO);
         LocationsModel locationsModel = twappService.getLocations("testFull", 100, true);
         assertEquals(9, locationsModel.getLocations().size());
     }
 
     @Test
     public void testGetLocationsKeepEmpty() throws Exception {
-        TwappService twappService = new TwappServiceImpl(testConfiguration, twappDAO);
+        TwappService twappService = new TwappServiceImpl(twappDAO);
         LocationsModel locationsModel = twappService.getLocations("testFull", 100, false);
         assertEquals(11, locationsModel.getLocations().size());
     }
-
 }

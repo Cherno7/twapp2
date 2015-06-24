@@ -14,10 +14,8 @@ public class Util {
         Map<T, Integer> map = new HashMap<>();
 
         for (T element : list) {
-            Integer count = map.get(element);
-            if (count == null) {
-                map.put(element, 1);
-            } else {
+            Integer count = map.putIfAbsent(element, 1);
+            if (count != null) {
                 map.replace(element, ++count);
             }
         }

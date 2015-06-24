@@ -19,9 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 /**
  * Created on 08.06.2015.
@@ -33,12 +31,10 @@ public class Main {
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
      * @return Grizzly HTTP server.
      */
-
-
     private static HttpServer startServer(Configuration externalConfiguration, String uri) {
         final ResourceConfig rc = new ResourceConfig().packages("org.cherno.twapp2.restserv")
-                .register(createMoxyJsonResolver());
-        rc.property("configuration", externalConfiguration);
+            .register(createMoxyJsonResolver())
+            .property("configuration", externalConfiguration);
 
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), rc);
     }

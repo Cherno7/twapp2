@@ -25,7 +25,7 @@ public class TwappServiceImpl implements TwappService{
         this.twappDAO = new TwappDAOImpl(externalConfiguration);
     }
 
-    public TwappServiceImpl(Configuration externalConfiguration, TwappDAO twappDAO) {
+    public TwappServiceImpl(TwappDAO twappDAO) {
         this.twappDAO = twappDAO;
     }
 
@@ -34,9 +34,9 @@ public class TwappServiceImpl implements TwappService{
         TwappData twappData;
         SuggestedLocationModel suggestedLocationModel = new SuggestedLocationModel();
 
-        List<String> list1 = new ArrayList<>();
-        List<String> list2 = new ArrayList<>();
-        List<String> list3 = new ArrayList<>();
+        List<String> leftSubstrings = new ArrayList<>();
+        List<String> rightSubstrings = new ArrayList<>();
+        List<String> atomicStrings = new ArrayList<>();
 
         try {
             twappData = twappDAO.getTwitterData(name, limit);
@@ -56,17 +56,17 @@ public class TwappServiceImpl implements TwappService{
                     String[] splitStr = str.split(",", 2);
                     splitStr[0] = splitStr[0].trim();
                     splitStr[1] = splitStr[1].trim();
-                    if (list1.contains(splitStr[0])) {
-                        list1.add(splitStr[0]);
-                        list2.add(splitStr[1]);
+                    if (leftSubstrings.contains(splitStr[0])) {
+                        leftSubstrings.add(splitStr[0]);
+                        rightSubstrings.add(splitStr[1]);
                     }
-                    else if (list2.contains(splitStr[0])){
-                        list2.add(splitStr[0]);
-                        list1.add(splitStr[1]);
+                    else if (rightSubstrings.contains(splitStr[0])){
+                        rightSubstrings.add(splitStr[0]);
+                        leftSubstrings.add(splitStr[1]);
                     }
                     else {
-                        list1.add(splitStr[0]);
-                        list2.add(splitStr[1]);
+                        leftSubstrings.add(splitStr[0]);
+                        rightSubstrings.add(splitStr[1]);
                     }
                 }
             }
@@ -75,21 +75,21 @@ public class TwappServiceImpl implements TwappService{
             for (String str : fullList) {
                 str = str.trim().toLowerCase();
                 if (!str.contains(",")) {
-                    if (list1.contains(str)) {
-                        list1.add(str);
+                    if (leftSubstrings.contains(str)) {
+                        leftSubstrings.add(str);
                     }
-                    else if (list2.contains(str)){
-                        list2.add(str);
+                    else if (rightSubstrings.contains(str)){
+                        rightSubstrings.add(str);
                     }
                     else {
-                        list3.add(str);
+                        atomicStrings.add(str);
                     }
                 }
             }
 
-            logger.info("Sizes: List1 = {}, List2 = {}, List3 = {}", list1.size(), list2.size(), list3.size());
-            suggestedLocationModel.setSuggestedLocation(Util.getMostCommon(list1) + ", " + Util.getMostCommon(list2));
-            suggestedLocationModel.setOptionalLocation(Util.getMostCommon(list3));
+            logger.info("Sizes: List1 = {}, List2 = {}, List3 = {}", leftSubstrings.size(), rightSubstrings.size(), atomicStrings.size());
+            suggestedLocationModel.setSuggestedLocation(Util.getMostCommon(leftSubstrings) + ", " + Util.getMostCommon(rightSubstrings));
+            suggestedLocationModel.setOptionalLocation(Util.getMostCommon(atomicStrings));
 
             Map<String, Integer> headers = new HashMap<>();
             headers.put("twitter-followers-status", twappData.getFollowersResponseStatus());
