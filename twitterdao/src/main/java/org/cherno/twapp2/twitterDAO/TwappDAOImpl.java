@@ -30,6 +30,7 @@ public class TwappDAOImpl implements TwappDAO{
 
     private CompositeConfiguration configuration = new CompositeConfiguration();
     private static final Logger logger = LoggerFactory.getLogger(TwappDAOImpl.class);
+    private OAuthConsumer consumer;
 
     public TwappDAOImpl() {
         try {
@@ -49,110 +50,88 @@ public class TwappDAOImpl implements TwappDAO{
     }
 
     public TwappData getTwitterData(String userName, int limit) throws TwitterDAOExeption {
+        String friendsURL = this.configuration.getString("twitterdao.friendsListURL");
+        String followersURL = this.configuration.getString("twitterdao.followerListURL");
+
+        this.initOAuth();
         TwappData twappData = new TwappData();
+
+        LocationsRequestResult result = this.getLocations(followersURL, userName, limit);
+        twappData.setFollowersLocations(result.getResults());
+        twappData.setFollowersResponseStatus(result.getStatus());
+        twappData.setFollowersRemainingLimit(result.getLimit());
+
+        result = this.getLocations(friendsURL, userName, limit);
+        twappData.setFriendsLocations(result.getResults());
+        twappData.setFriendsResponseStatus(result.getStatus());
+        twappData.setFriendsRemainingLimit(result.getLimit());
+
+        return twappData;
+    }
+
+    private void initOAuth(){
+        String consumerKey = this.configuration.getString("twitterdao.consumerKey");
+        String consumerSecret = this.configuration.getString("twitterdao.consumerSecret");
+        String accessToken = this.configuration.getString("twitterdao.accessToken");
+        String accessTokenSecret = this.configuration.getString("twitterdao.accessTokenSecret");
+
+        this.consumer = new CommonsHttpOAuthConsumer(consumerKey, consumerSecret);
+        this.consumer.setTokenWithSecret(accessToken, accessTokenSecret);
+    }
+
+    private LocationsRequestResult getLocations(String url, String userName, int limit) throws TwitterDAOExeption {
+        LocationsRequestResult results = new LocationsRequestResult();
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet request;
         HttpResponse response;
         long cursor = -1;
-
         int counter = 0;
-
-
+        List<String> locations = new ArrayList<>();
         try {
-            OAuthConsumer consumer = new CommonsHttpOAuthConsumer(configuration.getString("twitterdao.consumerKey"), configuration.getString("twitterdao.consumerSecret"));
-            consumer.setTokenWithSecret(configuration.getString("twitterdao.accessToken"), configuration.getString("twitterdao.accessTokenSecret"));
-
-            List<String> followerList = new ArrayList<>();
-
             do {
-                request = new HttpGet(configuration.getString("twitterdao.followerListURL") + userName + "&cursor=" + cursor);
-                consumer.sign(request);
+                request = new HttpGet(url + userName + "&cursor=" + cursor);
+                this.consumer.sign(request);
                 response = client.execute(request);
 
                 int responseStatus = response.getStatusLine().getStatusCode();
-                twappData.setFollowersResponseStatus(responseStatus);
+                results.setStatus(responseStatus);
                 //not safe
-                twappData.setFollowersRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
+                results.setLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
 
                 if (responseStatus == 401) {
                     logger.error("Bad authentication data");
-                    return twappData;
+                    return results;
                 }
                 if (responseStatus == 404) {
-                    logger.error("Not found");
-                    return twappData;
+                    logger.error("User not found");
+                    return results;
                 }
                 if (responseStatus == 429){
                     logger.warn("Hit the limit while obtaining the followers list");
                     break;
                 }
 
-                JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
-                Unmarshaller unmarshaller = jc.createUnmarshaller();
-                unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
-                unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
-
-                StreamSource json = new StreamSource(response.getEntity().getContent());
-                ResultJson rj = unmarshaller.unmarshal(json, ResultJson.class).getValue();
-
+                ResultJson rj = this.unmarshallResponse(new StreamSource(response.getEntity().getContent()));
                 for (User user : rj.getUsers())
                     if (user.getLocation() != null)
-                        followerList.add(user.getLocation());
+                        locations.add(user.getLocation());
 
                 cursor = rj.getNextCursor();
                 counter += rj.getUsers().size();
-                logger.info("Processing list of the followers. Cursor = {}, count = {}", cursor, counter);
+                logger.info("Processing URL = {}. Cursor = {}, count = {}", url + userName, cursor, counter);
             } while (cursor != 0 && counter < limit);
-            twappData.setFollowersLocations(followerList);
-
-            cursor = -1;
-            counter = 0;
-            List<String> friendsList = new ArrayList<>();
-            do {
-                request = new HttpGet(configuration.getString("twitterdao.friendsListURL") + userName + "&cursor=" + cursor);
-                consumer.sign(request);
-                response = client.execute(request);
-
-                int responseStatus = response.getStatusLine().getStatusCode();
-                twappData.setFriendsResponseStatus(responseStatus);
-                //not safe
-                twappData.setFriendsRemainingLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
-
-                if (responseStatus == 404) {
-                    logger.error("Not found");
-                    return twappData;
-                }
-                if (responseStatus == 401) {
-                    logger.error("Bad authentication data");
-                    return twappData;
-                }
-                if (responseStatus == 429){
-                    logger.warn("Hit the limit while obtaining the friends list");
-                    break;
-                }
-
-                JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
-                Unmarshaller unmarshaller = jc.createUnmarshaller();
-                unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
-                unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
-
-                StreamSource json = new StreamSource(response.getEntity().getContent());
-                ResultJson rj = unmarshaller.unmarshal(json, ResultJson.class).getValue();
-
-                for (User user : rj.getUsers())
-                    if (user.getLocation() != null)
-                        friendsList.add(user.getLocation());
-
-                cursor = rj.getNextCursor();
-                counter += rj.getUsers().size();
-                logger.info("Processing list of the followers. Cursor = {}, count = {}", cursor, counter);
-            } while (cursor != 0 && counter < limit);
-            twappData.setFriendsLocations(friendsList);
-
-        } catch (IOException|JAXBException|OAuthException e) {
+            results.setResults(locations);
+        } catch (IOException | JAXBException | OAuthException e) {
             throw new TwitterDAOExeption(e.getMessage(), e.getCause());
         }
+        return results;
+    }
 
-        return twappData;
+    private ResultJson unmarshallResponse(StreamSource streamSource) throws JAXBException{
+        JAXBContext jc = JAXBContext.newInstance(ResultJson.class);
+        Unmarshaller unmarshaller = jc.createUnmarshaller();
+        unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+        unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
+        return unmarshaller.unmarshal(streamSource, ResultJson.class).getValue();
     }
 }
