@@ -1,10 +1,7 @@
 package org.cherno.twapp2.restserv;
 
-import org.apache.commons.configuration.Configuration;
 import org.cherno.twapp2.service.*;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -27,10 +24,7 @@ public class LocationsResource {
                                       @DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
                                       @PathParam("name") String name) {
 
-        Configuration externalConfiguration = (Configuration) config.getProperty("configuration");
-//        TwappService twappService = new TwappServiceImpl(externalConfiguration);
-
-        TwappService twappService = TwappServiceFactory.getService(externalConfiguration);
+        TwappService twappService = (TwappService) config.getProperty("service");
 
         Locations locations = new Locations();
         LocationsModel locationsModel = twappService.getLocations(name, limit, skipEmpty);
@@ -53,10 +47,7 @@ public class LocationsResource {
                                       @DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
                                       @PathParam("name") String name) {
 
-        Configuration externalConfiguration = (Configuration) config.getProperty("configuration");
-//        TwappService twappService = new TwappServiceImpl(externalConfiguration);
-
-        TwappService twappService = TwappServiceFactory.getService(externalConfiguration);
+        TwappService twappService = (TwappService) config.getProperty("service");
 
         SuggestedLocation location = new SuggestedLocation();
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation(name, limit, true);
