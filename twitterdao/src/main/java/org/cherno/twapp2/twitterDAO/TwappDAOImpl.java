@@ -1,16 +1,12 @@
 package org.cherno.twapp2.twitterDAO;
 
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
-import oauth.signpost.exception.OAuthException;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.cherno.twapp2.twitterDAO.http.CachingTwitterHttpClient;
+import org.cherno.twapp2.twitterDAO.http.TwitterHttpClient;
+import org.cherno.twapp2.twitterDAO.http.TwitterResponse;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +26,6 @@ public class TwappDAOImpl implements TwappDAO{
 
     private CompositeConfiguration configuration = new CompositeConfiguration();
     private static final Logger logger = LoggerFactory.getLogger(TwappDAOImpl.class);
-    private OAuthConsumer consumer;
 
     public TwappDAOImpl() {
         try {
@@ -53,7 +48,6 @@ public class TwappDAOImpl implements TwappDAO{
         String friendsURL = this.configuration.getString("twitterdao.friendsListURL");
         String followersURL = this.configuration.getString("twitterdao.followerListURL");
 
-        this.initOAuth();
         TwappData twappData = new TwappData();
 
         LocationsRequestResult result = this.getLocations(followersURL, userName, limit);
@@ -69,59 +63,45 @@ public class TwappDAOImpl implements TwappDAO{
         return twappData;
     }
 
-    private void initOAuth(){
-        String consumerKey = this.configuration.getString("twitterdao.consumerKey");
-        String consumerSecret = this.configuration.getString("twitterdao.consumerSecret");
-        String accessToken = this.configuration.getString("twitterdao.accessToken");
-        String accessTokenSecret = this.configuration.getString("twitterdao.accessTokenSecret");
-
-        this.consumer = new CommonsHttpOAuthConsumer(consumerKey, consumerSecret);
-        this.consumer.setTokenWithSecret(accessToken, accessTokenSecret);
-    }
-
     private LocationsRequestResult getLocations(String url, String userName, int limit) throws TwitterDAOExeption {
         LocationsRequestResult results = new LocationsRequestResult();
-        HttpClient client = HttpClientBuilder.create().build();
-        HttpGet request;
-        HttpResponse response;
+        TwitterResponse twitterResponse;
+        TwitterHttpClient client = new CachingTwitterHttpClient(configuration);
         long cursor = -1;
         int counter = 0;
         List<String> locations = new ArrayList<>();
         try {
             do {
-                request = new HttpGet(url + userName + "&cursor=" + cursor);
-                this.consumer.sign(request);
-                response = client.execute(request);
+                twitterResponse = client.getTwitterResponse(url + userName + "&cursor=" + cursor);
+                results.setLimit(twitterResponse.getLimit());
+                results.setStatus(twitterResponse.getStatus());
 
-                int responseStatus = response.getStatusLine().getStatusCode();
-                results.setStatus(responseStatus);
-                //not safe
-                results.setLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
-
-                if (responseStatus == 401) {
+                if (twitterResponse.getStatus() == 401) {
                     logger.error("Bad authentication data");
                     return results;
                 }
-                if (responseStatus == 404) {
+                if (twitterResponse.getStatus() == 404) {
                     logger.error("User not found");
                     return results;
                 }
-                if (responseStatus == 429){
+                if (twitterResponse.getStatus() == 429){
                     logger.warn("Hit the limit while obtaining the followers list");
                     break;
                 }
 
-                ResultJson rj = this.unmarshallResponse(new StreamSource(response.getEntity().getContent()));
+                String json = twitterResponse.getBody();
+                ResultJson rj = this.unmarshallResponse(new StreamSource(new StringReader(json)));
                 for (User user : rj.getUsers())
                     if (user.getLocation() != null)
                         locations.add(user.getLocation());
 
                 cursor = rj.getNextCursor();
-                counter += rj.getUsers().size();
+                if(twitterResponse.getStatus() != 304)
+                    counter += rj.getUsers().size();
                 logger.info("Processing URL = {}. Cursor = {}, count = {}", url + userName, cursor, counter);
             } while (cursor != 0 && counter < limit);
             results.setResults(locations);
-        } catch (IOException | JAXBException | OAuthException e) {
+        } catch (JAXBException e) {
             throw new TwitterDAOExeption(e.getMessage(), e.getCause());
         }
         return results;
