@@ -74,7 +74,7 @@ public class CachingTwitterHttpClient implements TwitterHttpClient {
                 throw new TwitterDAOExeption(e.getMessage(), e.getCause());
             }
 
-            if (configuration.getBoolean("twitterdao.caching"))
+            if (configuration.getBoolean("twitterdao.caching") && twitterResponse.getStatus() == 200)
                 cache.put(url, twitterResponse.getBody());
             return twitterResponse;
         }
