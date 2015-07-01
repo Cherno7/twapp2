@@ -96,7 +96,7 @@ public class TwappDAOImpl implements TwappDAO{
                         locations.add(user.getLocation());
 
                 cursor = rj.getNextCursor();
-                if(twitterResponse.getStatus() != 304)
+                if(twitterResponse.getLimit() != -1)
                     counter += rj.getUsers().size();
                 logger.info("Processing URL = {}. Cursor = {}, count = {}", url + userName, cursor, counter);
             } while (cursor != 0 && counter < limit);

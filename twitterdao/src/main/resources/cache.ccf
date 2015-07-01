@@ -1,0 +1,40 @@
+# DEFAULT CACHE REGION
+
+# sets the default aux value for any non configured caches
+jcs.default=DC
+jcs.default.cacheattributes=org.apache.commons.jcs.engine.CompositeCacheAttributes
+jcs.default.cacheattributes.MaxObjects=1000
+jcs.default.cacheattributes.MemoryCacheName=org.apache.commons.jcs.engine.memory.lru.LRUMemoryCache
+jcs.default.elementattributes.IsEternal=false
+jcs.default.elementattributes.MaxLife=3600
+jcs.default.elementattributes.IdleTime=1800
+jcs.default.elementattributes.IsSpool=true
+jcs.default.elementattributes.IsRemote=true
+jcs.default.elementattributes.IsLateral=true
+
+
+# CACHE REGIONS AVAILABLE
+
+# Regions preconfigured for caching
+jcs.region.twappCache=DC
+jcs.region.twappCache.cacheattributes=org.apache.commons.jcs.engine.CompositeCacheAttributes
+jcs.region.twappCache.cacheattributes.MaxObjects=1000
+jcs.region.twappCache.cacheattributes.MemoryCacheName=org.apache.commons.jcs.engine.memory.lru.LRUMemoryCache
+jcs.region.twappCache.cacheattributes.DiskUsagePatternName=UPDATE
+jcs.region.twappCache.elementattributes.IsEternal=false
+jcs.region.twappCache.elementattributes.MaxLife=7200
+jcs.region.twappCache.elementattributes.IdleTime=1800
+jcs.region.twappCache.elementattributes.IsSpool=true
+jcs.region.twappCache.elementattributes.IsRemote=true
+jcs.region.twappCache.elementattributes.IsLateral=true
+
+# AUXILIARY CACHES AVAILABLE
+
+# Primary Disk Cache -- faster than the rest because of memory key storage
+jcs.auxiliary.DC=org.apache.commons.jcs.auxiliary.disk.indexed.IndexedDiskCacheFactory
+jcs.auxiliary.DC.attributes=org.apache.commons.jcs.auxiliary.disk.indexed.IndexedDiskCacheAttributes
+jcs.auxiliary.DC.attributes.DiskPath=.
+jcs.auxiliary.DC.attributes.MaxPurgatorySize=10000
+jcs.auxiliary.DC.attributes.MaxKeySize=10000
+jcs.auxiliary.DC.attributes.OptimizeAtRemoveCount=300000
+jcs.auxiliary.DC.attributes.MaxRecycleBinSize=7500

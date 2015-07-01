@@ -7,5 +7,4 @@ import org.cherno.twapp2.twitterDAO.TwitterDAOExeption;
  */
 public interface TwitterHttpClient {
     public TwitterResponse getTwitterResponse(String url) throws TwitterDAOExeption;
-    public TwitterResponse getTwitterResponse(String url, boolean caching) throws TwitterDAOExeption;
 }
