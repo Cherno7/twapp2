@@ -30,7 +30,7 @@ public class TwappServiceImplTest {
         twappDataPartial.setFollowersResponseStatus(200);
         twappDataPartial.setFollowersLocations(Arrays.asList("Russia, Omsk", "Omsk, Russia", "Russia, ufA", "uFa", "Ufa", "Amsterdam", ""));
 
-        when(twappDAO.getTwitterData("testPartial", 100)).thenReturn(twappDataPartial);
+        when(twappDAO.getTwitterData("testPartial")).thenReturn(twappDataPartial);
 
         TwappData twappDataFull = new TwappData();
         twappDataFull.setFriendsRemainingLimit(10);
@@ -40,7 +40,7 @@ public class TwappServiceImplTest {
         twappDataFull.setFollowersLocations(Arrays.asList("Russia, Omsk", "Omsk, Russia", "Russia, ufA", "uFa", "Ufa", "Amsterdam", ""));
         twappDataFull.setFriendsLocations(Arrays.asList("", "Ukraine, Kiev", "Omsk", "Omsk"));
 
-        when(twappDAO.getTwitterData("testFull", 100)).thenReturn(twappDataFull);
+        when(twappDAO.getTwitterData("testFull")).thenReturn(twappDataFull);
 
 
     }
@@ -48,28 +48,28 @@ public class TwappServiceImplTest {
     @Test
     public void testGetSuggestedLocationPartial() throws Exception {
         TwappService twappService = new TwappServiceImpl(twappDAO);
-        SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testPartial", 100, true);
+        SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testPartial", true);
         assertEquals("russia, ufa", suggestedLocationModel.getSuggestedLocation());
     }
 
     @Test
     public void testGetSuggestedLocationFull() throws Exception {
         TwappService twappService = new TwappServiceImpl(twappDAO);
-        SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testFull", 100, true);
+        SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testFull", true);
         assertEquals("russia, omsk", suggestedLocationModel.getSuggestedLocation());
     }
 
     @Test
     public void testGetLocationsSkipEmpty() throws Exception {
         TwappService twappService = new TwappServiceImpl(twappDAO);
-        LocationsModel locationsModel = twappService.getLocations("testFull", 100, true);
+        LocationsModel locationsModel = twappService.getLocations("testFull", true);
         assertEquals(9, locationsModel.getLocations().size());
     }
 
     @Test
     public void testGetLocationsKeepEmpty() throws Exception {
         TwappService twappService = new TwappServiceImpl(twappDAO);
-        LocationsModel locationsModel = twappService.getLocations("testFull", 100, false);
+        LocationsModel locationsModel = twappService.getLocations("testFull", false);
         assertEquals(11, locationsModel.getLocations().size());
     }
 }

@@ -56,7 +56,6 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
-                            <mainClass>org.cherno.twapp2.twitterDAO.TwappDAOImpl</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

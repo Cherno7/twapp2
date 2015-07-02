@@ -29,7 +29,7 @@ public class TwappServiceImpl implements TwappService{
         this.twappDAO = twappDAO;
     }
 
-    public SuggestedLocationModel getSuggestedLocation(String name, int limit, boolean skipEmpty) {
+    public SuggestedLocationModel getSuggestedLocation(String name, boolean skipEmpty) {
         List<String> fullList = new ArrayList<>();
         TwappData twappData;
         SuggestedLocationModel suggestedLocationModel = new SuggestedLocationModel();
@@ -39,7 +39,7 @@ public class TwappServiceImpl implements TwappService{
         List<String> atomicStrings = new ArrayList<>();
 
         try {
-            twappData = twappDAO.getTwitterData(name, limit);
+            twappData = twappDAO.getTwitterData(name);
             for (String location : twappData.getFollowersLocations())
                 if (!(location.isEmpty() && skipEmpty))
                     fullList.add(location);
@@ -105,13 +105,13 @@ public class TwappServiceImpl implements TwappService{
         return suggestedLocationModel;
     }
 
-    public LocationsModel getLocations(String name, int limit, boolean skipEmpty) {
+    public LocationsModel getLocations(String name, boolean skipEmpty) {
         List<String> fullList = new ArrayList<>();
         TwappData twappData;
         LocationsModel locationsModel = new LocationsModel();
 
         try {
-            twappData = twappDAO.getTwitterData(name, limit);
+            twappData = twappDAO.getTwitterData(name);
             if (twappData.getFollowersLocations() != null)
                 for (String location : twappData.getFollowersLocations())
                     if (!(location.isEmpty() && skipEmpty))

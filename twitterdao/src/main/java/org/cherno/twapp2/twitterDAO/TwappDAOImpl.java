@@ -4,6 +4,7 @@ import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.cherno.twapp2.twitterDAO.http.CachingTwitterHttpClient;
 import org.cherno.twapp2.twitterDAO.http.TwitterHttpClient;
 import org.cherno.twapp2.twitterDAO.http.TwitterResponse;
@@ -26,6 +27,7 @@ public class TwappDAOImpl implements TwappDAO{
 
     private CompositeConfiguration configuration = new CompositeConfiguration();
     private static final Logger logger = LoggerFactory.getLogger(TwappDAOImpl.class);
+    private TwitterHttpClient client;
 
     public TwappDAOImpl() {
         try {
@@ -33,6 +35,7 @@ public class TwappDAOImpl implements TwappDAO{
         } catch (ConfigurationException e) {
             logger.error("{}", e.getMessage());
         }
+        this.client  = new CachingTwitterHttpClient(configuration);
     }
 
     public TwappDAOImpl(Configuration externalConfiguration) {
@@ -42,12 +45,13 @@ public class TwappDAOImpl implements TwappDAO{
         } catch (ConfigurationException e) {
             logger.error("{}", e.getMessage());
         }
+        this.client  = new CachingTwitterHttpClient(configuration);
     }
 
-    public TwappData getTwitterData(String userName, int limit) throws TwitterDAOExeption {
+    public TwappData getTwitterData(String userName) throws TwitterDAOExeption {
         String friendsURL = this.configuration.getString("twitterdao.friendsListURL");
         String followersURL = this.configuration.getString("twitterdao.followerListURL");
-
+        int limit = this.configuration.getInt("twitterdao.querylimit");
         TwappData twappData = new TwappData();
 
         LocationsRequestResult result = this.getLocations(followersURL, userName, limit);
@@ -66,13 +70,14 @@ public class TwappDAOImpl implements TwappDAO{
     private LocationsRequestResult getLocations(String url, String userName, int limit) throws TwitterDAOExeption {
         LocationsRequestResult results = new LocationsRequestResult();
         TwitterResponse twitterResponse;
-        TwitterHttpClient client = new CachingTwitterHttpClient(configuration);
+
         long cursor = -1;
         int counter = 0;
         List<String> locations = new ArrayList<>();
+        String finalURL = url + userName + "&cursor=%d";
         try {
             do {
-                twitterResponse = client.getTwitterResponse(url + userName + "&cursor=" + cursor);
+                twitterResponse = client.getTwitterResponse(String.format(finalURL, cursor));
                 results.setLimit(twitterResponse.getLimit());
                 results.setStatus(twitterResponse.getStatus());
 
@@ -98,7 +103,7 @@ public class TwappDAOImpl implements TwappDAO{
                 cursor = rj.getNextCursor();
                 if (twitterResponse.getLimit() != -1)
                     counter += rj.getUsers().size();
-                logger.info("Processing URL = {}. Cursor = {}, count = {}", url + userName, cursor, counter);
+                logger.info("Processing URL = {}, count = {}", String.format(finalURL, cursor), counter);
             } while (cursor != 0 && counter < limit);
             results.setResults(locations);
         } catch (JAXBException e) {

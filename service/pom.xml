@@ -34,7 +34,6 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
-                            <mainClass>org.cherno.twapp2.service.TwappServiceImpl</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

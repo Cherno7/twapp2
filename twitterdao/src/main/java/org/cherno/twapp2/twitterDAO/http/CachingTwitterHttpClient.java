@@ -13,10 +13,13 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.cherno.twapp2.twitterDAO.TwitterDAOExeption;
+import org.cherno.twapp2.twitterDAO.cache.TwappCache;
+import org.cherno.twapp2.twitterDAO.cache.TwappNoCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.Properties;
 
 /**
@@ -26,33 +29,27 @@ public class CachingTwitterHttpClient implements TwitterHttpClient {
     private Configuration configuration;
     private static final Logger logger = LoggerFactory.getLogger(CachingTwitterHttpClient.class);
     private OAuthConsumer consumer;
-    private CacheAccess<String, String> cache;
+    private TwappCache cache;
     private HttpClient client;
 
     public CachingTwitterHttpClient(Configuration configuration) {
         this.configuration = configuration;
         this.consumer = initOAuth(configuration);
-        this.cache = initCache(configuration);
         this.client = HttpClientBuilder.create().build();
-    }
-
-    private CacheAccess<String, String> initCache(Configuration configuration) {
-        CompositeCacheManager ccm = CompositeCacheManager.getUnconfiguredInstance();
-        Properties prop = new Properties();
         try {
-            prop.load(this.getClass().getResourceAsStream("/cache.ccf"));
-            prop.setProperty("jcs.auxiliary.DC.attributes.DiskPath", configuration.getString("twitterdao.cachedir"));
-            ccm.configure(prop);
-        } catch (IOException e) {
-            logger.error("cache.ccf not found in classpath");
+            Class c = Class.forName(configuration.getString("twitterdao.cache"));
+            Constructor construct =  c.getConstructor(Configuration.class);
+            this.cache  = (TwappCache) construct.newInstance(configuration);
+        } catch (ReflectiveOperationException e) {
+            logger.error("Cache implementation {} not found. Caching disabled", configuration.getString("twitterdao.cache"));
+            this.cache = new TwappNoCacheImpl();
         }
-        return JCS.getInstance("twappCache");
     }
 
     public TwitterResponse getTwitterResponse(String url) throws TwitterDAOExeption {
         TwitterResponse twitterResponse = new TwitterResponse();
 
-        if (configuration.getBoolean("twitterdao.caching") && cache.get(url) != null){
+        if (cache.get(url) != null){
             twitterResponse.setStatus(200);
             twitterResponse.setLimit(-1);
             twitterResponse.setBody(cache.get(url));
@@ -74,7 +71,7 @@ public class CachingTwitterHttpClient implements TwitterHttpClient {
                 throw new TwitterDAOExeption(e.getMessage(), e.getCause());
             }
 
-            if (configuration.getBoolean("twitterdao.caching") && twitterResponse.getStatus() == 200)
+            if (twitterResponse.getStatus() == 200)
                 cache.put(url, twitterResponse.getBody());
             return twitterResponse;
         }

@@ -20,14 +20,13 @@ public class LocationsResource {
     @GET
     @Path("locations/{name: [a-zA-Z][a-zA-Z_0-9]*}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response fullListOfLocationsResource(@DefaultValue("1000") @QueryParam("max_results") int limit,
-                                      @DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
+    public Response fullListOfLocationsResource(@DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
                                       @PathParam("name") String name) {
 
         TwappService twappService = (TwappService) config.getProperty("service");
 
         Locations locations = new Locations();
-        LocationsModel locationsModel = twappService.getLocations(name, limit, skipEmpty);
+        LocationsModel locationsModel = twappService.getLocations(name, skipEmpty);
         locations.setLocations(locationsModel.getLocations());
 
 
@@ -43,14 +42,13 @@ public class LocationsResource {
     @GET
     @Path("slocation/{name: [a-zA-Z][a-zA-Z_0-9]*}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response suggestedLocationResource(@DefaultValue("1000") @QueryParam("max_results") int limit,
-                                      @DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
+    public Response suggestedLocationResource(@DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
                                       @PathParam("name") String name) {
 
         TwappService twappService = (TwappService) config.getProperty("service");
 
         SuggestedLocation location = new SuggestedLocation();
-        SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation(name, limit, true);
+        SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation(name, true);
         location.setSuggestedLocation(suggestedLocationModel.getSuggestedLocation());
         location.setOptionalLocation(suggestedLocationModel.getOptionalLocation());
 
