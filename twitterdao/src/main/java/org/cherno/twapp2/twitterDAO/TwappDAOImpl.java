@@ -4,7 +4,6 @@ import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.lang.StringUtils;
 import org.cherno.twapp2.twitterDAO.http.CachingTwitterHttpClient;
 import org.cherno.twapp2.twitterDAO.http.TwitterHttpClient;
 import org.cherno.twapp2.twitterDAO.http.TwitterResponse;

@@ -4,9 +4,6 @@ import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthException;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.jcs.JCS;
-import org.apache.commons.jcs.access.CacheAccess;
-import org.apache.commons.jcs.engine.control.CompositeCacheManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -20,14 +17,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.Properties;
 
 /**
  * Created on 30.06.2015.
  */
 public class CachingTwitterHttpClient implements TwitterHttpClient {
-    private Configuration configuration;
     private static final Logger logger = LoggerFactory.getLogger(CachingTwitterHttpClient.class);
+
+    private Configuration configuration;
     private OAuthConsumer consumer;
     private TwappCache cache;
     private HttpClient client;
