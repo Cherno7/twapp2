@@ -1,2 +1,12 @@
 language: java
 jdk: oraclejdk8
+deploy:
+  provider: gcs
+  access_key_id: GOOG56WHPKRTV5T3ERZY
+  secret_access_key:
+    secure: PZgn0LAt+XdM7pScIq7PlfOyY5nTXe/RatEaT1ljC8XMMw1BEmyUYzn9b+jSwzgrKWiC2EoAq9HED6F8fgYuBVlH3MNTX27hQSOKSHSSGotUYBJaoUWM3XQJuP50hcCcnEV7+tyvG2T8tUSd23+1RXLiMfT2HNbd2QcDIcSYkqWggc2FUHv4dwz0eZ7Ix8YdWIfvq9NFfPvfPZCx19vaX/LOmLRHBZWQhU+Tk/YLA1CvGiP0uZSbEU5IOIMpvF0E/Cx118v2zXlOE24VBYnadXlJnLTFoc2zL57hKFdwcqSHIjZVxzeZqz5RMjpYrYYRZpfEZRENyD44ZYZjBe7dhm+4avS6BBljZ0eOvVD/Cj4PBAVIBmUS/ZX9Elxl3PPVaIiuquMlfVR9ccwlvxGMUc8tKnwYKLv09Bt/1e6PR/mTXLh5TbJymuSE8+aL7Es0xXeHobLTJctEVXJpanp5OC7mkvYZw3rkGNl2QYmCisekpVgnQchYYjvR9Uxnkxw8IkPpBF2Agt95WM9/mTK32cdeu9IQdMKUMygoNpzSAMYZgTGV4qfeZWDd/Tv4G+YEmCygueh/iGzxiwh/Dlf5d10Rv85NDXbQm9IdEypUsHmelMolZjELQF7jfiQIovRzvs/PQAy7Jlo33Gr4XZxlEmB03ei3//0AyiTD0ybWv68=
+  bucket: twapp-suggested-location.appspot.com
+  skip_cleanup: true
+  acl: public-read
+  on:
+    repo: Cherno7/twapp2
