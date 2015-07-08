@@ -10,8 +10,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class SuggestedLocation {
     @XmlElement(name="suggested_location")
     private String suggestedLocation;
-    @XmlElement(name="optional_location")
-    private String optionalLocation;
     private String status;
     private String limits;
 
@@ -37,13 +35,5 @@ public class SuggestedLocation {
 
     public void setSuggestedLocation(String suggestedLocation) {
         this.suggestedLocation = suggestedLocation;
-    }
-
-    public String getOptionalLocation() {
-        return optionalLocation;
-    }
-
-    public void setOptionalLocation(String optionalLocation) {
-        this.optionalLocation = optionalLocation;
     }
 }

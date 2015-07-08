@@ -49,14 +49,14 @@ public class TwappServiceImplTest {
     public void testGetSuggestedLocationPartial() throws Exception {
         TwappService twappService = new TwappServiceImpl(twappDAO);
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testPartial", true);
-        assertEquals("russia, ufa", suggestedLocationModel.getSuggestedLocation());
+        assertEquals("RU, ufa", suggestedLocationModel.getSuggestedLocation());
     }
 
     @Test
     public void testGetSuggestedLocationFull() throws Exception {
         TwappService twappService = new TwappServiceImpl(twappDAO);
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testFull", true);
-        assertEquals("russia, omsk", suggestedLocationModel.getSuggestedLocation());
+        assertEquals("RU, omsk", suggestedLocationModel.getSuggestedLocation());
     }
 
     @Test

@@ -48,7 +48,6 @@ public class LocationsResource {
         SuggestedLocation location = new SuggestedLocation();
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation(name, true);
         location.setSuggestedLocation(suggestedLocationModel.getSuggestedLocation());
-        location.setOptionalLocation(suggestedLocationModel.getOptionalLocation());
         location.setStatus(suggestedLocationModel.getStatus());
         location.setLimits(twappService.getCurrentTwitterLimits());
 

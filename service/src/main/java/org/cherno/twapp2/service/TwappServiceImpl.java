@@ -1,6 +1,8 @@
 package org.cherno.twapp2.service;
 
 import org.apache.commons.configuration.Configuration;
+import org.cherno.twapp2.service.country.CountryChecker;
+import org.cherno.twapp2.service.country.CountryCheckerISO3166;
 import org.cherno.twapp2.service.storage.MemoryStorage;
 import org.cherno.twapp2.service.storage.Storage;
 import org.cherno.twapp2.twitterDAO.TwappDAO;
@@ -21,15 +23,18 @@ public class TwappServiceImpl implements TwappService{
 
     private TwappDAO twappDAO;
     private Storage storage;
+    private CountryChecker countryChecker;
 
     public TwappServiceImpl(Configuration externalConfiguration) {
         this.twappDAO = new TwappDAOImpl(externalConfiguration);
         this.storage = MemoryStorage.getInstance("twapp");
+        this.countryChecker = new CountryCheckerISO3166();
     }
 
     public TwappServiceImpl(TwappDAO twappDAO) {
         this.twappDAO = twappDAO;
         this.storage = MemoryStorage.getInstance("twapp");
+        this.countryChecker = new CountryCheckerISO3166();
     }
 
     public SuggestedLocationModel getSuggestedLocation(String name, boolean skipEmpty) {
@@ -37,9 +42,8 @@ public class TwappServiceImpl implements TwappService{
         TwappData twappData;
         SuggestedLocationModel suggestedLocationModel = new SuggestedLocationModel();
 
-        List<String> leftSubstrings = new ArrayList<>();
-        List<String> rightSubstrings = new ArrayList<>();
-        List<String> atomicStrings = new ArrayList<>();
+        List<String> countries = new ArrayList<>();
+        List<String> cities = new ArrayList<>();
 
         try {
             twappData = twappDAO.getTwitterData(name);
@@ -57,47 +61,28 @@ public class TwappServiceImpl implements TwappService{
 
             logger.info("Number of locations received = {}", fullList.size());
 
-            //first iteration, country-city pairs
             for (String str : fullList) {
                 str = str.trim().toLowerCase();
                 if (str.contains(",")) {
-                    String[] splitStr = str.split(",", 2);
-                    splitStr[0] = splitStr[0].trim();
-                    splitStr[1] = splitStr[1].trim();
-                    if (leftSubstrings.contains(splitStr[0])) {
-                        leftSubstrings.add(splitStr[0]);
-                        rightSubstrings.add(splitStr[1]);
+                    String[] splitStr = str.split(",");
+                    for (String s: splitStr){
+                        if (countryChecker.isCountry(s.trim())) {
+                            countries.add(countryChecker.getCountryCode(s.trim()));
+                        } else {
+                            cities.add(s.trim());
+                        }
                     }
-                    else if (rightSubstrings.contains(splitStr[0])){
-                        rightSubstrings.add(splitStr[0]);
-                        leftSubstrings.add(splitStr[1]);
-                    }
-                    else {
-                        leftSubstrings.add(splitStr[0]);
-                        rightSubstrings.add(splitStr[1]);
-                    }
-                }
-            }
-            //second iteration
-
-            for (String str : fullList) {
-                str = str.trim().toLowerCase();
-                if (!str.contains(",")) {
-                    if (leftSubstrings.contains(str)) {
-                        leftSubstrings.add(str);
-                    }
-                    else if (rightSubstrings.contains(str)){
-                        rightSubstrings.add(str);
-                    }
-                    else {
-                        atomicStrings.add(str);
+                } else {
+                    if (countryChecker.isCountry(str)) {
+                        countries.add(countryChecker.getCountryCode(str));
+                    } else {
+                        cities.add(str);
                     }
                 }
             }
 
-            logger.info("Sizes: List1 = {}, List2 = {}, List3 = {}", leftSubstrings.size(), rightSubstrings.size(), atomicStrings.size());
-            suggestedLocationModel.setSuggestedLocation(Util.getMostCommon(leftSubstrings) + ", " + Util.getMostCommon(rightSubstrings));
-            suggestedLocationModel.setOptionalLocation(Util.getMostCommon(atomicStrings));
+            logger.info("Sizes: Countries = {}, Cities = {}", countries.size(), cities.size());
+            suggestedLocationModel.setSuggestedLocation(Util.getMostCommon(countries) + ", " + Util.getMostCommon(cities));
             suggestedLocationModel.setStatus(getStatus(twappData));
 
         } catch (TwitterDAOExeption twitterDAOExeption) {

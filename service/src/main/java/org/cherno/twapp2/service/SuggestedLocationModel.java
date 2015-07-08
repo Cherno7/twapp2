@@ -6,12 +6,10 @@ package org.cherno.twapp2.service;
  */
 public class SuggestedLocationModel {
     private String suggestedLocation;
-    private String optionalLocation;
     private String status;
 
     public SuggestedLocationModel() {
         this.suggestedLocation = "";
-        this.optionalLocation = "";
     }
 
     public String getSuggestedLocation() {
@@ -20,14 +18,6 @@ public class SuggestedLocationModel {
 
     public void setSuggestedLocation(String suggestedLocation) {
         this.suggestedLocation = suggestedLocation;
-    }
-
-    public String getOptionalLocation() {
-        return optionalLocation;
-    }
-
-    public void setOptionalLocation(String optionalLocation) {
-        this.optionalLocation = optionalLocation;
     }
 
     public String getStatus() {
