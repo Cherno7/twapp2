@@ -28,14 +28,12 @@ public class LocationsResource {
         Locations locations = new Locations();
         LocationsModel locationsModel = twappService.getLocations(name, skipEmpty);
         locations.setLocations(locationsModel.getLocations());
-
+        locations.setStatus(locationsModel.getStatus());
+        locations.setLimits(twappService.getCurrentTwitterLimits());
 
         Response.ResponseBuilder response = Response.status(200);
         response.entity(locations);
 
-        for(Map.Entry<String, Integer> header : locationsModel.getHeaders().entrySet()){
-            response.header(header.getKey(), header.getValue());
-        }
         return response.build();
     }
 
@@ -51,13 +49,12 @@ public class LocationsResource {
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation(name, true);
         location.setSuggestedLocation(suggestedLocationModel.getSuggestedLocation());
         location.setOptionalLocation(suggestedLocationModel.getOptionalLocation());
+        location.setStatus(suggestedLocationModel.getStatus());
+        location.setLimits(twappService.getCurrentTwitterLimits());
 
         Response.ResponseBuilder response = Response.status(200);
         response.entity(location);
 
-        for(Map.Entry<String, Integer> header : suggestedLocationModel.getHeaders().entrySet()){
-            response.header(header.getKey(), header.getValue());
-        }
         return response.build();
     }
 

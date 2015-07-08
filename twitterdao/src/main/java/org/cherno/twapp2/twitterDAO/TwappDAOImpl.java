@@ -104,6 +104,8 @@ public class TwappDAOImpl implements TwappDAO{
                     counter += rj.getUsers().size();
                 logger.info("Processing URL = {}, count = {}", String.format(finalURL, cursor), counter);
             } while (cursor != 0 && counter < limit);
+
+            if (cursor != 0) results.setStatus(429);
             results.setResults(locations);
         } catch (JAXBException e) {
             throw new TwitterDAOExeption(e.getMessage(), e.getCause());

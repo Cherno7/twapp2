@@ -12,6 +12,24 @@ public class SuggestedLocation {
     private String suggestedLocation;
     @XmlElement(name="optional_location")
     private String optionalLocation;
+    private String status;
+    private String limits;
+
+    public String getLimits() {
+        return limits;
+    }
+
+    public void setLimits(String limits) {
+        this.limits = limits;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getSuggestedLocation() {
         return suggestedLocation;

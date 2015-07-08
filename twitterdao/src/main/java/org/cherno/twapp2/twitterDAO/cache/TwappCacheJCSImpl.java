@@ -22,7 +22,12 @@ public class TwappCacheJCSImpl implements TwappCache {
         Properties prop = new Properties();
         try {
             prop.load(this.getClass().getResourceAsStream("/cache.ccf"));
-            prop.setProperty("jcs.auxiliary.DC.attributes.DiskPath", configuration.getString("twitterdao.cachedir"));
+            if (configuration.containsKey("twitterdao.cachedir"))
+                prop.setProperty("jcs.auxiliary.DC.attributes.DiskPath", configuration.getString("twitterdao.cachedir"));
+            if (configuration.containsKey("twitterdao.cache.eternal"))
+                prop.setProperty("jcs.region.twappCache.elementattributes.IsEternal", configuration.getString("twitterdao.cache.eternal"));
+            if (configuration.containsKey("twitterdao.cache.ttl"))
+                prop.setProperty("jcs.region.twappCache.elementattributes.MaxLife", configuration.getString("twitterdao.cache.ttl"));
             ccm.configure(prop);
         } catch (IOException e) {
             logger.error("cache.ccf not found in classpath");

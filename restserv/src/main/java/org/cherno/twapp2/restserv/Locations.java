@@ -8,7 +8,25 @@ import java.util.List;
  */
 @XmlRootElement
 public class Locations {
+    private String status;
+    private String limits;
     private List<String> locations;
+
+    public String getLimits() {
+        return limits;
+    }
+
+    public void setLimits(String limits) {
+        this.limits = limits;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public List<String> getLocations() {
         return locations;

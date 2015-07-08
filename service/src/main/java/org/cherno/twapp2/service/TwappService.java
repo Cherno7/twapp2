@@ -6,4 +6,5 @@ package org.cherno.twapp2.service;
 public interface TwappService {
     SuggestedLocationModel getSuggestedLocation(String name, boolean skipEmpty);
     LocationsModel getLocations(String name, boolean skipEmpty);
+    String getCurrentTwitterLimits();
 }
