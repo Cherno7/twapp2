@@ -1,5 +1,9 @@
 package org.cherno.twapp2.restserv;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.annotation.Metered;
+import com.codahale.metrics.annotation.Timed;
 import org.cherno.twapp2.service.*;
 
 import javax.ws.rs.*;
@@ -18,6 +22,7 @@ public class LocationsResource {
     private javax.ws.rs.core.Configuration config;
 
     @GET
+    @Metered
     @Path("locations/{name: [a-zA-Z][a-zA-Z_0-9]*}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response fullListOfLocationsResource(@DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
@@ -37,11 +42,12 @@ public class LocationsResource {
         return response.build();
     }
 
-    @GET
-    @Path("slocation/{name: [a-zA-Z][a-zA-Z_0-9]*}")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response suggestedLocationResource(@DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
-                                      @PathParam("name") String name) {
+     @GET
+     @Metered
+     @Path("slocation/{name: [a-zA-Z][a-zA-Z_0-9]*}")
+     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+     public Response suggestedLocationResource(@DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
+                                               @PathParam("name") String name) {
 
         TwappService twappService = (TwappService) config.getProperty("service");
 
@@ -55,6 +61,32 @@ public class LocationsResource {
         response.entity(location);
 
         return response.build();
+    }
+    @GET
+    @Path("status/")
+    @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
+    public String status() {
+        MetricRegistry metrics = (MetricRegistry) config.getProperty("metricregistry");
+        String report = "";
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Meter> map : metrics.getMeters().entrySet()) {
+            sb.append("Resource: ");
+            sb.append(map.getKey());
+            sb.append("\n");
+            sb.append("Hit counter: ");
+            sb.append(map.getValue().getCount());
+            sb.append("\n");
+            sb.append("One minute rate: ");
+            sb.append(String.format("%.3f", map.getValue().getOneMinuteRate()));
+            sb.append("\n");
+            sb.append("Five minute rate: ");
+            sb.append(String.format("%.3f", map.getValue().getFiveMinuteRate()));
+            sb.append("\n");
+            sb.append("Fifteen minute rate: ");
+            sb.append(String.format("%.3f", map.getValue().getFifteenMinuteRate()));
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 
 }

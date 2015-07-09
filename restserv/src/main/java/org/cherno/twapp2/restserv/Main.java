@@ -2,6 +2,12 @@ package org.cherno.twapp2.restserv;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.annotation.Metered;
+import com.codahale.metrics.jersey2.InstrumentedResourceMethodApplicationListener;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -20,6 +26,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 /**
@@ -28,20 +35,26 @@ import java.util.logging.LogManager;
 public class Main {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Main.class);
+    static final MetricRegistry metrics = new MetricRegistry();
+
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
+     *
      * @return Grizzly HTTP server.
      */
     private static HttpServer startServer(Configuration externalConfiguration, String uri) {
         final ResourceConfig rc = new ResourceConfig().packages("org.cherno.twapp2.restserv")
-            .register(createMoxyJsonResolver())
-            .property("service", new TwappServiceImpl(externalConfiguration));
+                .register(createMoxyJsonResolver())
+                .register(new InstrumentedResourceMethodApplicationListener(metrics))
+                .property("service", new TwappServiceImpl(externalConfiguration))
+                .property("metricregistry", metrics);
 
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), rc);
     }
 
     /**
      * Main method.
+     *
      * @param args
      * @throws IOException
      */
@@ -88,4 +101,3 @@ public class Main {
         return moxyJsonConfig.resolver();
     }
 }
-
