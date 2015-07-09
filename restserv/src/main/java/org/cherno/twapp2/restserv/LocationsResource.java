@@ -3,13 +3,18 @@ package org.cherno.twapp2.restserv;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.annotation.Metered;
-import com.codahale.metrics.annotation.Timed;
+import org.cherno.twapp2.restserv.rm.Locations;
+import org.cherno.twapp2.restserv.rm.ResourcesStatuses;
+import org.cherno.twapp2.restserv.rm.Status;
+import org.cherno.twapp2.restserv.rm.SuggestedLocation;
 import org.cherno.twapp2.service.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,29 +69,26 @@ public class LocationsResource {
     }
     @GET
     @Path("status/")
-    @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
-    public String status() {
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response status() {
         MetricRegistry metrics = (MetricRegistry) config.getProperty("metricregistry");
-        String report = "";
-        StringBuilder sb = new StringBuilder();
+        ResourcesStatuses rs = new ResourcesStatuses();
+        List<Status> list = new ArrayList<>();
         for (Map.Entry<String, Meter> map : metrics.getMeters().entrySet()) {
-            sb.append("Resource: ");
-            sb.append(map.getKey());
-            sb.append("\n");
-            sb.append("Hit counter: ");
-            sb.append(map.getValue().getCount());
-            sb.append("\n");
-            sb.append("One minute rate: ");
-            sb.append(String.format("%.3f", map.getValue().getOneMinuteRate()));
-            sb.append("\n");
-            sb.append("Five minute rate: ");
-            sb.append(String.format("%.3f", map.getValue().getFiveMinuteRate()));
-            sb.append("\n");
-            sb.append("Fifteen minute rate: ");
-            sb.append(String.format("%.3f", map.getValue().getFifteenMinuteRate()));
-            sb.append("\n");
+            Status status = new Status();
+            status.setResource(map.getKey());
+            status.setCounter(map.getValue().getCount());
+            status.setOneMinuteRate(map.getValue().getOneMinuteRate());
+            status.setFiveMinuteRate(map.getValue().getFiveMinuteRate());
+            status.setFifteenMinuteRate(map.getValue().getFifteenMinuteRate());
+            list.add(status);
         }
-        return sb.toString();
+        rs.setStatuses(list);
+
+        Response.ResponseBuilder response = Response.status(200);
+        response.entity(rs);
+
+        return response.build();
     }
 
 }

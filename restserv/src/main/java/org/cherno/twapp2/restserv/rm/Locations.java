@@ -1,4 +1,4 @@
-package org.cherno.twapp2.restserv;
+package org.cherno.twapp2.restserv.rm;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
