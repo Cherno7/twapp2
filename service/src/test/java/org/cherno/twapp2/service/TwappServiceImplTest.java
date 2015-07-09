@@ -3,6 +3,7 @@ package org.cherno.twapp2.service;
 import org.cherno.twapp2.twitterDAO.TwappDAO;
 import org.cherno.twapp2.twitterDAO.TwappData;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -16,6 +17,7 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class TwappServiceImplTest {
 
+    TwappService twappService;
     @Mock
     TwappDAO twappDAO;
 
@@ -42,33 +44,29 @@ public class TwappServiceImplTest {
 
         when(twappDAO.getTwitterData("testFull")).thenReturn(twappDataFull);
 
-
+        twappService = new TwappServiceImpl(twappDAO);
     }
 
     @Test
     public void testGetSuggestedLocationPartial() throws Exception {
-        TwappService twappService = new TwappServiceImpl(twappDAO);
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testPartial", true);
         assertEquals("RU, ufa", suggestedLocationModel.getSuggestedLocation());
     }
 
     @Test
     public void testGetSuggestedLocationFull() throws Exception {
-        TwappService twappService = new TwappServiceImpl(twappDAO);
         SuggestedLocationModel suggestedLocationModel = twappService.getSuggestedLocation("testFull", true);
         assertEquals("RU, omsk", suggestedLocationModel.getSuggestedLocation());
     }
 
     @Test
     public void testGetLocationsSkipEmpty() throws Exception {
-        TwappService twappService = new TwappServiceImpl(twappDAO);
         LocationsModel locationsModel = twappService.getLocations("testFull", true);
         assertEquals(9, locationsModel.getLocations().size());
     }
 
     @Test
     public void testGetLocationsKeepEmpty() throws Exception {
-        TwappService twappService = new TwappServiceImpl(twappDAO);
         LocationsModel locationsModel = twappService.getLocations("testFull", false);
         assertEquals(11, locationsModel.getLocations().size());
     }

@@ -1,5 +1,6 @@
 package org.cherno.twapp2.service.country;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -11,7 +12,7 @@ public class CountryCheckerISO3166 implements CountryChecker {
     private Map<String, String> countries;
 
     public CountryCheckerISO3166() {
-        this.countries = getCountryList();
+        this.countries = Collections.unmodifiableMap(getCountryList());
     }
 
     private Map<String, String> getCountryList() {
@@ -25,6 +26,10 @@ public class CountryCheckerISO3166 implements CountryChecker {
             }
         }
         return result;
+    }
+
+    public boolean isCountryCode(String code) {
+        return countries.containsValue(code);
     }
 
     public boolean isCountry(String name) {
