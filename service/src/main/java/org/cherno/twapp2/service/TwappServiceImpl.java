@@ -144,6 +144,7 @@ public class TwappServiceImpl implements TwappService{
                 } else if(countryChecker.isCountryCode(s)) {
                     countries.add(s);
                 } else if(cityChecker.isCity(s)){
+                    logger.info("{}:{}", s, cityChecker.getCityName(s));
                     cities.add(cityChecker.getCityName(s));
                 }
             }

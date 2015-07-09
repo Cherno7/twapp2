@@ -1,6 +1,6 @@
 package org.cherno.twapp2.service.city;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -39,16 +39,18 @@ public class CityCheckerGeoNames implements CityChecker {
         try{
             CSVReader cityReader;
             if (this.configuration.containsKey("service.geofile")) {
-                cityReader = new CSVReader(new InputStreamReader(new FileInputStream(this.configuration.getString("service.geofile")), "UTF-8"), '\t', '\'');
+                cityReader = new CSVReader(new InputStreamReader(new FileInputStream(this.configuration.getString("service.geofile")), "UTF-8"), '\t', '^');
             } else {
-                cityReader = new CSVReader(new InputStreamReader(this.getClass().getResourceAsStream("/cities.csv"), "UTF-8"), '\t', '\'');
+                cityReader = new CSVReader(new InputStreamReader(this.getClass().getResourceAsStream("/cities.csv"), "UTF-8"), '\t', '^');
             }
             String[] line;
             while ((line = cityReader.readNext()) != null) {
                 tempCanonNames.put(Integer.parseInt(line[0]), line[1].toLowerCase().trim());
                 tempAltNames.put(line[1].toLowerCase().trim(), Integer.parseInt(line[0]));
-                for(String str : line[3].split(",")){
-                    tempAltNames.put(str.trim().toLowerCase(), Integer.parseInt(line[0]));
+                if(line.length > 3) {
+                    for (String str : line[3].split(",")) {
+                        tempAltNames.put(str.trim().toLowerCase(), Integer.parseInt(line[0]));
+                    }
                 }
             }
         } catch (IOException e) {
