@@ -8,6 +8,8 @@ import org.cherno.twapp2.restserv.rm.ResourcesStatuses;
 import org.cherno.twapp2.restserv.rm.Status;
 import org.cherno.twapp2.restserv.rm.SuggestedLocation;
 import org.cherno.twapp2.service.*;
+import org.cherno.twapp2.service.async.Task;
+import org.cherno.twapp2.service.async.TwappServiceManager;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -67,6 +69,36 @@ public class LocationsResource {
 
         return response.build();
     }
+
+    @GET
+    @Metered
+    @Path("slasync/{name: [a-zA-Z][a-zA-Z_0-9]*}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response suggestedLocationResourceAsync(@DefaultValue("false") @QueryParam("skip_empty") boolean skipEmpty,
+                                              @PathParam("name") String name) {
+
+        TwappServiceManager twappServiceManager = (TwappServiceManager) config.getProperty("manager");
+        TwappService twappService = (TwappService) config.getProperty("service");
+
+        Task<SuggestedLocation> task = Task.getTask(SuggestedLocationModel.class, name, true);
+        SuggestedLocation location = new SuggestedLocation();
+
+        if (twappServiceManager.isTaskDone(task)){
+            SuggestedLocationModel suggestedLocationModel = (SuggestedLocationModel) twappServiceManager.getTaskResult(task);
+            location.setSuggestedLocation(suggestedLocationModel.getSuggestedLocation());
+            location.setStatus(suggestedLocationModel.getStatus());
+            location.setLimits(twappService.getCurrentTwitterLimits());
+        } else {
+            twappServiceManager.addTask(task);
+            location.setStatus("in progress");
+        }
+
+        Response.ResponseBuilder response = Response.status(200);
+        response.entity(location);
+
+        return response.build();
+    }
+
     @GET
     @Path("status/")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")

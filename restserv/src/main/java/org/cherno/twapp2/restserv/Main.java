@@ -9,7 +9,10 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.cherno.twapp2.restserv.sdargs.ConfigurationArgs;
+import org.cherno.twapp2.service.TwappService;
 import org.cherno.twapp2.service.TwappServiceImpl;
+import org.cherno.twapp2.service.async.TwappServiceManager;
+import org.cherno.twapp2.service.async.TwappServiceManagerSingleThread;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -38,10 +41,16 @@ public class Main {
      * @return Grizzly HTTP server.
      */
     private static HttpServer startServer(Configuration externalConfiguration, String uri) {
+        final TwappService twappService = new TwappServiceImpl(externalConfiguration);
+        final TwappServiceManager twappServiceManager = new TwappServiceManagerSingleThread(twappService);
+        Thread thread = new Thread(twappServiceManager);
+        thread.start();
+
         final ResourceConfig rc = new ResourceConfig().packages("org.cherno.twapp2.restserv")
                 .register(createMoxyJsonResolver())
                 .register(new InstrumentedResourceMethodApplicationListener(metrics))
-                .property("service", new TwappServiceImpl(externalConfiguration))
+                .property("service", twappService)
+                .property("manager", twappServiceManager)
                 .property("metricregistry", metrics);
 
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), rc);

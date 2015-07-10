@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class CityCheckerGeoNames implements CityChecker {
     private static final Logger logger = LoggerFactory.getLogger(CityCheckerGeoNames.class);
-    private Configuration configuration =new CompositeConfiguration();
+    private Configuration configuration = new CompositeConfiguration();
 
     private Map<Integer, String> canonNames;
     private Map<String, Integer> alternativeNames;
