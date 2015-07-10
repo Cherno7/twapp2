@@ -5,7 +5,6 @@ import org.cherno.twapp2.service.SuggestedLocationModel;
 import org.cherno.twapp2.service.TwappService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.management.snmp.jvminstr.JvmThreadInstanceEntryImpl;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,15 +29,16 @@ public class TwappServiceManagerSingleThread implements TwappServiceManager {
 
     public void addTask(Task task) {
         if (!this.queue.contains(task)) this.queue.offer(task);
+        logger.debug("Task added");
     }
 
     public boolean isTaskDone(Task task) {
+        logger.debug("Task checked. finished size = {}, queue length = {}", finishedTasks.size(), queue.size());
         return finishedTasks.contains(task);
     }
 
     public Object getTaskResult(Task task) {
-        Object obj = isTaskDone(task) ?
-                finishedTasks.get(finishedTasks.indexOf(task)).getResult() : null;
+        Object obj = finishedTasks.get(finishedTasks.indexOf(task)).getResult();
         finishedTasks.remove(task);
         return obj;
     }
@@ -53,7 +53,7 @@ public class TwappServiceManagerSingleThread implements TwappServiceManager {
                     task.setResult(twappService.getLocations(task.getUserName(), task.isSkipEmpty()));
                     finishedTasks.add(task);
                 } else if(task.gettClass() == SuggestedLocationModel.class){
-                    logger.info("{}:{}:{}", task.getUserName(), task.gettClass(), task.isSkipEmpty());
+                    logger.info("Got some task for {}::{}", task.getUserName(),  task.isSkipEmpty());
                     SuggestedLocationModel sl = twappService.getSuggestedLocation(task.getUserName(), task.isSkipEmpty());
                     logger.info("sl::{}", sl.getSuggestedLocation());
                     task.setResult(sl);

@@ -58,8 +58,11 @@ public class CachingTwitterHttpClient implements TwitterHttpClient {
             request = new HttpGet(url);
 
             try {
+                logger.debug("Signing request. {}", url);
                 this.consumer.sign(request);
+                logger.debug("Executing request.");
                 response = client.execute(request);
+                logger.debug("Processing response.");
                 int responseStatus = response.getStatusLine().getStatusCode();
                 twitterResponse.setStatus(responseStatus);
                 twitterResponse.setLimit(Integer.parseInt(response.getFirstHeader("x-rate-limit-remaining").getValue()));
