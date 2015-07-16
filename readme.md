@@ -1,6 +1,4 @@
-# REST service for suggesting twitter user location
-
-REST service in Java for determining [Twitter](https://twitter.com) user suggested location.
+# REST service in Java for determining [Twitter](https://twitter.com) user suggested location.
 
 ## Build and run
 ```
@@ -11,11 +9,11 @@ $ java -jar restserv-1.0 --config config.properties
 ```
 
 ## Configuration
-*** All of the following properties must be specified in the .properties file:
+##### All of the following properties must be specified in the .properties file:
 
 * `twitterdao.consumerKey`, `twitterdao.consumerSecret`, `twitterdao.accessToken`, `twitterdao.accessTokenSecret` : twitter REST API credentials. Use https://apps.twitter.com/app/new to register an application and get the credentials.
 
-*** Optional properties (if not specified then default values will be used)
+##### Optional properties (if not specified then default values will be used)
 * `restserv.URI` : service endpoint. Example : `restserv.URI = http://localhost:8080/twapp/`
 * `twitterdao.followerListURL`, `twitterdao.friendsListURL` : twitter API URI for getting friends and followers lists. Example: `twitterdao.followerListURL = https://api.twitter.com/1.1/followers/list.json` You can specify additional parameters (such as `count`, `skip_status` or `include_user_entities`) for managing a size of the twitter response.
 * `twitterdao.querylimit` : Number of the friends and followers records to be processed in a single query.
