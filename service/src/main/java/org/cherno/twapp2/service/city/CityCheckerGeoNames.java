@@ -23,10 +23,6 @@ public class CityCheckerGeoNames implements CityChecker {
     private Map<Integer, String> canonNames;
     private Map<String, Integer> alternativeNames;
 
-    public CityCheckerGeoNames() {
-        readMaps();
-    }
-
     public CityCheckerGeoNames(Configuration configuration) {
         this.configuration = configuration;
         readMaps();
@@ -35,14 +31,16 @@ public class CityCheckerGeoNames implements CityChecker {
     private void readMaps() {
         Map <Integer, String> tempCanonNames = new HashMap<>();
         Map <String, Integer> tempAltNames= new HashMap<>();
+        CSVReader cityReader;
 
         try{
-            CSVReader cityReader;
-            if (this.configuration.containsKey("service.geofile")) {
-                cityReader = new CSVReader(new InputStreamReader(new FileInputStream(this.configuration.getString("service.geofile")), "UTF-8"), '\t', '^');
-            } else {
-                cityReader = new CSVReader(new InputStreamReader(this.getClass().getResourceAsStream("/cities.csv"), "UTF-8"), '\t', '^');
-            }
+            cityReader = new CSVReader(new InputStreamReader(new FileInputStream(this.configuration.getString("service.geofile"))), '\t', '^');
+        } catch (IOException e) {
+            logger.error("City names file load error. Loading default city list.");
+            cityReader = new CSVReader(new InputStreamReader(this.getClass().getResourceAsStream("/cities.csv")), '\t', '^');
+        }
+
+        try {
             String[] line;
             while ((line = cityReader.readNext()) != null) {
                 tempCanonNames.put(Integer.parseInt(line[0]), line[1].toLowerCase().trim());
@@ -56,6 +54,7 @@ public class CityCheckerGeoNames implements CityChecker {
         } catch (IOException e) {
             logger.error("{}", e.getMessage());
         }
+
 
         logger.info("Geonames loaded, total number of cities = {}, alternative names = {} ", tempCanonNames.size(), tempAltNames.size());
 

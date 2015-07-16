@@ -23,23 +23,18 @@ import java.util.List;
 public class TwappServiceImpl implements TwappService{
     private static final Logger logger = LoggerFactory.getLogger(TwappServiceImpl.class);
 
+    private Configuration configuration;
     private TwappDAO twappDAO;
     private Storage storage;
     private CountryChecker countryChecker;
     private CityChecker cityChecker;
 
-    public TwappServiceImpl(Configuration externalConfiguration) {
-        this.twappDAO = new TwappDAOImpl(externalConfiguration);
-        this.storage = MemoryStorage.getInstance("twapp");
-        this.countryChecker = new CountryCheckerISO3166();
-        this.cityChecker = new CityCheckerGeoNames(externalConfiguration);
-    }
-
-    public TwappServiceImpl(TwappDAO twappDAO) {
+    public TwappServiceImpl(Configuration configuration, TwappDAO twappDAO, Storage storage, CountryChecker countryChecker, CityChecker cityChecker) {
+        this.configuration = configuration;
         this.twappDAO = twappDAO;
-        this.storage = MemoryStorage.getInstance("twapp");
-        this.countryChecker = new CountryCheckerISO3166();
-        this.cityChecker = new CityCheckerGeoNames();
+        this.storage = storage;
+        this.countryChecker = countryChecker;
+        this.cityChecker = cityChecker;
     }
 
     public SuggestedLocationModel getSuggestedLocation(String name, boolean skipEmpty) {

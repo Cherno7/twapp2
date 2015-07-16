@@ -1,5 +1,9 @@
 package org.cherno.twapp2.service;
 
+import org.apache.commons.configuration.Configuration;
+import org.cherno.twapp2.service.city.CityChecker;
+import org.cherno.twapp2.service.country.CountryChecker;
+import org.cherno.twapp2.service.storage.Storage;
 import org.cherno.twapp2.twitterDAO.TwappDAO;
 import org.cherno.twapp2.twitterDAO.TwappData;
 import org.junit.Before;
@@ -20,6 +24,14 @@ public class TwappServiceImplTest {
     TwappService twappService;
     @Mock
     TwappDAO twappDAO;
+    @Mock
+    Storage storage;
+    @Mock
+    Configuration configuration;
+    @Mock
+    CityChecker cityChecker;
+    @Mock
+    CountryChecker countryChecker;
 
     @Before
     public void setUp() throws Exception {
@@ -44,7 +56,23 @@ public class TwappServiceImplTest {
 
         when(twappDAO.getTwitterData("testFull")).thenReturn(twappDataFull);
 
-        twappService = new TwappServiceImpl(twappDAO);
+        when(countryChecker.isCountry("russia")).thenReturn(true);
+        when(countryChecker.isCountry("ukraine")).thenReturn(true);
+        when(countryChecker.getCountryCode("russia")).thenReturn("RU");
+        when(countryChecker.getCountryCode("ukraine")).thenReturn("UA");
+
+        when(cityChecker.isCity("omsk")).thenReturn(true);
+        when(cityChecker.isCity("ufa")).thenReturn(true);
+        when(cityChecker.isCity("kiev")).thenReturn(true);
+        when(cityChecker.isCity("amsterdam")).thenReturn(true);
+
+        when(cityChecker.getCityName("omsk")).thenReturn("omsk");
+        when(cityChecker.getCityName("ufa")).thenReturn("ufa");
+        when(cityChecker.getCityName("kiev")).thenReturn("kiev");
+        when(cityChecker.getCityName("amsterdam")).thenReturn("amsterdam");
+
+
+        twappService = new TwappServiceImpl(configuration, twappDAO, storage, countryChecker, cityChecker);
     }
 
     @Test

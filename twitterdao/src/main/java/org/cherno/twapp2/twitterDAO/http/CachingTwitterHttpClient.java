@@ -11,12 +11,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.cherno.twapp2.twitterDAO.TwitterDAOExeption;
 import org.cherno.twapp2.twitterDAO.cache.TwappCache;
-import org.cherno.twapp2.twitterDAO.cache.TwappNoCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 
 /**
  * Created on 30.06.2015.
@@ -29,18 +27,11 @@ public class CachingTwitterHttpClient implements TwitterHttpClient {
     private TwappCache cache;
     private HttpClient client;
 
-    public CachingTwitterHttpClient(Configuration configuration) {
+    public CachingTwitterHttpClient(Configuration configuration, TwappCache cache) {
         this.configuration = configuration;
         this.consumer = initOAuth(configuration);
         this.client = HttpClientBuilder.create().build();
-        try {
-            Class c = Class.forName(configuration.getString("twitterdao.cache"));
-            Constructor construct =  c.getConstructor(Configuration.class);
-            this.cache  = (TwappCache) construct.newInstance(configuration);
-        } catch (ReflectiveOperationException e) {
-            logger.error("Cache implementation {} not found. Caching disabled", configuration.getString("twitterdao.cache"));
-            this.cache = new TwappNoCacheImpl();
-        }
+        this.cache = cache;
     }
 
     public TwitterResponse getTwitterResponse(String url) throws TwitterDAOExeption {

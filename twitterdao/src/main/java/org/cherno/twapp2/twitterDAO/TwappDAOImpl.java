@@ -28,23 +28,15 @@ public class TwappDAOImpl implements TwappDAO{
     private static final Logger logger = LoggerFactory.getLogger(TwappDAOImpl.class);
     private TwitterHttpClient client;
 
-    public TwappDAOImpl() {
-        try {
-            this.configuration.addConfiguration(new PropertiesConfiguration("twitterdao.properties"));
-        } catch (ConfigurationException e) {
-            logger.error("{}", e.getMessage());
-        }
-        this.client  = new CachingTwitterHttpClient(configuration);
-    }
 
-    public TwappDAOImpl(Configuration externalConfiguration) {
+    public TwappDAOImpl(Configuration externalConfiguration, TwitterHttpClient client) {
         this.configuration.addConfiguration(externalConfiguration);
         try {
             this.configuration.addConfiguration(new PropertiesConfiguration("twitterdao.properties"));
         } catch (ConfigurationException e) {
             logger.error("{}", e.getMessage());
         }
-        this.client  = new CachingTwitterHttpClient(configuration);
+        this.client  = client;
     }
 
     public TwappData getTwitterData(String userName) throws TwitterDAOExeption {
